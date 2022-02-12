@@ -75,7 +75,6 @@ class TestOpenDocument(unittest.TestCase):
             except Exception as e:
                 print("ERROR, document %s, %s" % (doc.name, str(e)))
                 self.number_of_fails += 1
-                pass
             self._build_document()
 
     def _build_document(self):
@@ -130,12 +129,13 @@ class TestOpenDocument(unittest.TestCase):
         # graph with timing information
         labels = "<1s", "<5s", "<10s", "<30s", ">30s"
         sizes = [
-            sum([1 for k, v in self.time_per_document.items() if v < 1]),
-            sum([1 for k, v in self.time_per_document.items() if 1 <= v < 5]),
-            sum([1 for k, v in self.time_per_document.items() if 5 <= v < 10]),
-            sum([1 for k, v in self.time_per_document.items() if 10 <= v < 30]),
-            sum([1 for k, v in self.time_per_document.items() if v >= 30]),
+            sum(v < 1 for k, v in self.time_per_document.items()),
+            sum(1 <= v < 5 for k, v in self.time_per_document.items()),
+            sum(5 <= v < 10 for k, v in self.time_per_document.items()),
+            sum(10 <= v < 30 for k, v in self.time_per_document.items()),
+            sum(v >= 30 for k, v in self.time_per_document.items()),
         ]
+
         explode = (0.1, 0, 0, 0, 0)  # only "explode" the 2nd slice (i.e. '<1s')
         fig1, ax1 = plt.subplots()
         ax1.pie(
@@ -199,10 +199,11 @@ class TestOpenDocument(unittest.TestCase):
         )
 
         avg_processing_time: float = sum(
-            [x for x in self.time_per_document.values()]
+            list(self.time_per_document.values())
         ) / len(self.time_per_document)
-        min_processing_time: float = min([x for x in self.time_per_document.values()])
-        max_processing_time: float = max([x for x in self.time_per_document.values()])
+
+        min_processing_time: float = min(list(self.time_per_document.values()))
+        max_processing_time: float = max(list(self.time_per_document.values()))
         ul.add(Paragraph("avg. processing time: %f seconds" % avg_processing_time))
         ul.add(Paragraph("max. processing time: %f seconds" % max_processing_time))
         ul.add(Paragraph("min. processing time: %f seconds" % min_processing_time))

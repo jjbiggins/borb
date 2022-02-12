@@ -35,7 +35,7 @@ class LineArtFactory:
         """
         pts = []
         r = min(bounding_box.width, bounding_box.height) / Decimal(2)
-        for i in range(0, 360 * x_frequency * y_frequency):
+        for i in range(360 * x_frequency * y_frequency):
             x = Decimal(math.sin(math.radians(i * x_frequency))) * r
             y = Decimal(math.cos(math.radians(i * y_frequency))) * r
             pts.append((x, y))
@@ -84,7 +84,7 @@ class LineArtFactory:
         # add rectangle top
         pa = pts[0]
         pb = pts[-1]
-        pts = pts + [
+        pts += [
             (pb[0], bounding_box.y + bounding_box.height),
             (pa[0], bounding_box.y + bounding_box.height),
             pa,
@@ -114,12 +114,11 @@ class LineArtFactory:
             )
             pts.append((x, y))
             if i == int(from_angle + (to_angle - from_angle) / 10):
-                pts.append((x, bounding_box.y + bounding_box.height))
-                pts.append((x, y))
+                pts.extend(((x, bounding_box.y + bounding_box.height), (x, y)))
         # add rectangle top
         pa = pts[0]
         pb = pts[-1]
-        pts = pts + [
+        pts += [
             (pb[0], bounding_box.y + bounding_box.height),
             (pa[0], bounding_box.y + bounding_box.height),
             pa,
@@ -191,7 +190,7 @@ class LineArtFactory:
         """
         pts_a = []
         pts_b = []
-        for i in range(0, 180):
+        for i in range(180):
             # first curve
             x0 = Decimal(math.sin(math.radians(i + 180))) * (
                 bounding_box.get_width() / Decimal(10)
@@ -249,7 +248,7 @@ class LineArtFactory:
         r = min(bounding_box.width, bounding_box.height) / Decimal(2)
         mid_x = bounding_box.x + r
         mid_y = bounding_box.y + r
-        for i in range(0, 320):
+        for i in range(320):
             x = Decimal(math.sin(math.radians(i + 180))) * r + mid_x
             y = Decimal(math.cos(math.radians(i + 180))) * r + mid_y
             pts.append((x, y))
@@ -367,7 +366,7 @@ class LineArtFactory:
             pts_a.append((x, ya))
             pts_b.append((x, yb))
         # return
-        return pts_a + [x for x in reversed(pts_b)] + [pts_a[0]]
+        return pts_a + list(reversed(pts_b)) + [pts_a[0]]
 
     @staticmethod
     def flowchart_display(
@@ -381,7 +380,7 @@ class LineArtFactory:
         r_minor = bounding_box.width / Decimal(10)
         mid_x = bounding_box.x + bounding_box.width - r_minor
         mid_y = bounding_box.y + bounding_box.height / Decimal(2)
-        for i in range(0, 180):
+        for i in range(180):
             # first curve
             x = Decimal(math.sin(math.radians(i))) * r_minor + mid_x
             y = Decimal(math.cos(math.radians(i))) * r_major + mid_y
@@ -458,7 +457,7 @@ class LineArtFactory:
         pts_b = []
         r_major = bounding_box.height * Decimal(0.5)
         r_minor = bounding_box.width * Decimal(0.25)
-        for i in range(0, 180):
+        for i in range(180):
             # first curve
             x = (
                 Decimal(math.sin(math.radians(i))) * r_minor
@@ -503,7 +502,7 @@ class LineArtFactory:
         pts_a = []
         r_major = bounding_box.height * Decimal(0.5)
         r_minor = bounding_box.width * Decimal(0.25)
-        for i in range(0, 180):
+        for i in range(180):
             x = (
                 Decimal(math.sin(math.radians(i))) * r_minor
                 + bounding_box.width * Decimal(0.5)
@@ -560,15 +559,14 @@ class LineArtFactory:
         r = min(bounding_box.width, bounding_box.height) / Decimal(2)
         mid_x = bounding_box.x + r
         mid_y = bounding_box.y + r
-        for i in range(0, 360):
+        for i in range(360):
             x = Decimal(math.sin(math.radians(i))) * r + mid_x
             y = Decimal(math.cos(math.radians(i))) * r + mid_y
             pts.append((x, y))
-            if i == 0 or i == 90:
+            if i in [0, 90]:
                 xb = Decimal(math.sin(math.radians(i + 180))) * r + mid_x
                 yb = Decimal(math.cos(math.radians(i + 180))) * r + mid_y
-                pts.append((xb, yb))
-                pts.append((x, y))
+                pts.extend(((xb, yb), (x, y)))
         pts.append(pts[0])
         return pts
 
@@ -602,15 +600,14 @@ class LineArtFactory:
         r = min(bounding_box.width, bounding_box.height) / Decimal(2)
         mid_x = bounding_box.x + r
         mid_y = bounding_box.y + r
-        for i in range(0, 360):
+        for i in range(360):
             x = Decimal(math.sin(math.radians(i))) * r + mid_x
             y = Decimal(math.cos(math.radians(i))) * r + mid_y
             pts.append((x, y))
-            if i == 45 or i == 135:
+            if i in [45, 135]:
                 xb = Decimal(math.sin(math.radians(i + 180))) * r + mid_x
                 yb = Decimal(math.cos(math.radians(i + 180))) * r + mid_y
-                pts.append((xb, yb))
-                pts.append((x, y))
+                pts.extend(((xb, yb), (x, y)))
         pts.append(pts[0])
         return pts
 
@@ -726,10 +723,10 @@ class LineArtFactory:
         or the Jurassic Park dragon) curve that fits in the given bounding box
         """
         seq: typing.List[int] = [1]
-        for _ in range(0, number_of_iterations):
+        for _ in range(number_of_iterations):
             seq.append(1)
-            m: int = int(len(seq) / 2) - 1
-            for i, v in enumerate(seq[0:-1]):
+            m: int = len(seq) // 2 - 1
+            for i, v in enumerate(seq[:-1]):
                 if i == m:
                     seq.append(1 - v)
                 else:
@@ -758,8 +755,8 @@ class LineArtFactory:
                 direction = (direction + 3) % 4
 
         # determine width/height
-        w: Decimal = max([x[0] for x in points]) - min([x[0] for x in points])
-        h: Decimal = max([x[1] for x in points]) - min([x[1] for x in points])
+        w: Decimal = max(x[0] for x in points) - min(x[0] for x in points)
+        h: Decimal = max(x[1] for x in points) - min(x[1] for x in points)
 
         # scale everything
         w_scale: Decimal = bounding_box.width / w
@@ -912,7 +909,7 @@ class LineArtFactory:
         mid_x = bounding_box.x + r
         mid_y = bounding_box.y + r
         points = []
-        for i in range(0, 360, int(360 / n)):
+        for i in range(0, 360, 360 // n):
             x = Decimal(math.sin(math.radians(i))) * r + mid_x
             y = Decimal(math.cos(math.radians(i))) * r + mid_y
             points.append((x, y))
@@ -1040,7 +1037,7 @@ class LineArtFactory:
         mid_x = bounding_box.x + r
         mid_y = bounding_box.y + r
         points: typing.List[Tuple[Decimal, Decimal]] = []
-        for i in range(0, 360):
+        for i in range(360):
             x = Decimal(math.sin(math.radians(i))) * r + mid_x
             y = Decimal(math.cos(math.radians(i))) * r + mid_y
             points.append((x, y))
@@ -1058,7 +1055,7 @@ class LineArtFactory:
         mid_x = bounding_box.x + r
         mid_y = bounding_box.y + r
         points: typing.List[Tuple[Decimal, Decimal]] = []
-        for i in range(0, int(360 * float(fraction))):
+        for i in range(int(360 * float(fraction))):
             x = Decimal(math.sin(math.radians(i))) * r + mid_x
             y = Decimal(math.cos(math.radians(i))) * r + mid_y
             points.append((x, y))
@@ -1092,7 +1089,7 @@ class LineArtFactory:
         mid_x = bounding_box.x + r
         mid_y = bounding_box.y + r
         points: typing.List[Tuple[Decimal, Decimal]] = []
-        for i in range(0, 270):
+        for i in range(270):
             x = Decimal(math.sin(math.radians(i))) * r + mid_x
             y = Decimal(math.cos(math.radians(i))) * r + mid_y
             points.append((x, y))
@@ -1141,13 +1138,13 @@ class LineArtFactory:
         mid_y = bounding_box.y + r
         inner_radius = r * Decimal(0.39)
         points: typing.List[Tuple[Decimal, Decimal]] = []
-        for i in range(0, 360, int(360 / n)):
+        # inner point
+        half_angle = int(360 / (2 * n))
+        for i in range(0, 360, 360 // n):
             # outer point
             x = Decimal(math.sin(math.radians(i))) * r + mid_x
             y = Decimal(math.cos(math.radians(i))) * r + mid_y
             points.append((x, y))
-            # inner point
-            half_angle = int(360 / (2 * n))
             x = Decimal(math.sin(math.radians(i + half_angle))) * inner_radius + mid_x
             y = Decimal(math.cos(math.radians(i + half_angle))) * inner_radius + mid_y
             points.append((x, y))
@@ -1306,7 +1303,7 @@ class LineArtFactory:
         r = min(bounding_box.width, bounding_box.height) / Decimal(2)
         points: typing.List[Tuple[Decimal, Decimal]] = []
         # first arc
-        for i in range(0, 180):
+        for i in range(180):
             x = (
                 Decimal(math.sin(math.radians(i - 90))) * r * Decimal(0.5)
                 + bounding_box.x
@@ -1320,7 +1317,7 @@ class LineArtFactory:
             points.append((x, y))
         midpoint = points[-1]
         # second arc
-        for i in range(0, 180):
+        for i in range(180):
             x = (
                 Decimal(math.sin(math.radians(i - 90))) * r * Decimal(0.5)
                 + bounding_box.x

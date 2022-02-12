@@ -127,8 +127,8 @@ class InformationDictionaryTransformer(Transformer):
             minute: str = s[12:14]
             second: str = s[14:16]
             # fmt: off
-            return year + "-" + month + "-" + day + "T" + hour + ":" + minute + ":" + second + "+00:00"
-            # fmt: on
+            return f'{year}-{month}-{day}T{hour}:{minute}:' + second + "+00:00"
+                # fmt: on
         except:
             return s
 
@@ -144,9 +144,10 @@ class InformationDictionaryTransformer(Transformer):
         random_id: str = "".join(
             [
                 random.choice("0123456789abcdefghijklmnopqrstuvwxyz")
-                for _ in range(0, 24)
+                for _ in range(24)
             ]
         )
+
         s: str = '<?xpacket begin="" id="%s"?>' % random_id
         s += '\n<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="Adobe XMP Core 5.1.0-jc003">'
         s += '\n\t<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">'
@@ -269,11 +270,9 @@ class InformationDictionaryTransformer(Transformer):
                                    and "Trailer" in document["XRef"]                        \
                                    and "Root" in document["XRef"]["Trailer"]                \
                                    and "Metadata" in document["XRef"]["Trailer"]["Root"]
-        needs_xmp_metadata = has_xmp_metadata or (context is not None and context.conformance_level is not None)
-        # fmt: on
-
-        if needs_xmp_metadata:
-
+        if needs_xmp_metadata := has_xmp_metadata or (
+            context is not None and context.conformance_level is not None
+        ):
             # write XMP /Metadata
             xmp_metadata_stream: Stream = self._write_xmp_metadata_stream(
                 new_info_dictionary, context.conformance_level

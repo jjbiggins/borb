@@ -64,9 +64,8 @@ class PlainTextXREF(XREF):
             xref_section = self._read_section(src, tok)
             if len(xref_section) == 0:
                 break
-            else:
-                for r in xref_section:
-                    self.append(r)
+            for r in xref_section:
+                self.append(r)
 
         # process trailer
         self[Name("Trailer")] = self._read_trailer(src, tok)
@@ -81,7 +80,7 @@ class PlainTextXREF(XREF):
         tok: HighLevelTokenizer,
     ) -> List[Reference]:
 
-        tokens = [tok.next_non_comment_token() for _ in range(0, 2)]
+        tokens = [tok.next_non_comment_token() for _ in range(2)]
         assert tokens[0] is not None
         assert tokens[1] is not None
         if tokens[0].get_text() in ["trailer", "startxref"]:
@@ -95,8 +94,8 @@ class PlainTextXREF(XREF):
         indirect_references = []
 
         # read subsection
-        for i in range(0, number_of_objects):
-            tokens = [tok.next_non_comment_token() for _ in range(0, 3)]
+        for i in range(number_of_objects):
+            tokens = [tok.next_non_comment_token() for _ in range(3)]
             assert tokens[0] is not None
             assert tokens[0].get_text() not in ["trailer", "startxref"]
             assert tokens[0].get_token_type() == TokenType.NUMBER

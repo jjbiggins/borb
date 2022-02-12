@@ -32,7 +32,7 @@ class HorizontalRuleTransformer(Transformer):
             context.tell()
             + 1 : context.get_markdown_string().find("\n", context.tell() + 1)
         ]
-        return any([x in markdown_str for x in ["---", "***", "___"]])
+        return any(x in markdown_str for x in ["---", "***", "___"])
 
     def _transform(self, context: TransformerState) -> None:
 

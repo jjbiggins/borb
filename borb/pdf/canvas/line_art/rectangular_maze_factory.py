@@ -9,9 +9,10 @@ class RectangularMazeFactory:
 
         # determine lines
         cells: typing.List[typing.List[typing.Tuple[bool, bool, bool, bool]]] = [
-            [(True, True, True, True) for _ in range(0, grid_width)]
-            for _ in range(0, grid_height)
+            [(True, True, True, True) for _ in range(grid_width)]
+            for _ in range(grid_height)
         ]
+
 
         cells_stk: typing.List[typing.Tuple[int, int]] = [
             (
@@ -19,7 +20,7 @@ class RectangularMazeFactory:
                 random.randint(0, grid_height - 1),
             )
         ]
-        while sum([sum([1 for t in row if all(t)]) for row in cells]) > 0:
+        while sum(sum(all(t) for t in row) for row in cells) > 0:
             # check last element
             x, y = cells_stk[-1]
 
@@ -81,8 +82,8 @@ class RectangularMazeFactory:
         lines: typing.List[
             typing.Tuple[typing.Tuple[Decimal, Decimal], typing.Tuple[Decimal, Decimal]]
         ] = []
-        for i in range(0, grid_width):
-            for j in range(0, grid_height):
+        for i in range(grid_width):
+            for j in range(grid_height):
                 # NORTH
                 if cells[i][j][0]:
                     lines.append(((i * 10, j * 10), ((i + 1) * 10, j * 10)))

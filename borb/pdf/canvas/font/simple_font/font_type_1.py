@@ -112,11 +112,9 @@ class Type1Font(SimpleFont):
         # AND those glyph names all resolve to <empty string> (using fontTools.agl.toUnicode)
         # THEN attempt to parse them as numbers, using those as CIDs
         if all(
-            [
-                str(x).startswith("G") and toUnicode(str(x)) == ""
-                for x in self["Encoding"]["Differences"]
-                if isinstance(x, Name)
-            ]
+            str(x).startswith("G") and toUnicode(str(x)) == ""
+            for x in self["Encoding"]["Differences"]
+            if isinstance(x, Name)
         ):
             self._read_encoding_with_unclear_glyph_names()
             return
@@ -309,10 +307,7 @@ class Type1Font(SimpleFont):
             try:
                 if self["Encoding"] == "WinAnsiEncoding":
                     return int(unicode.encode("cp1252"))
-                elif self["Encoding"] == "MacRomanEncoding":
-                    return int(unicode.encode("mac-roman"))
-                elif self["Encoding"] == "MacExpertEncoding":
-                    # TODO replace by actual MacExpertEncoding
+                elif self["Encoding"] in ["MacRomanEncoding", "MacExpertEncoding"]:
                     return int(unicode.encode("mac-roman"))
                 elif self["Encoding"] == "StandardEncoding":
                     return int(adobe_standard_encode(unicode))
@@ -369,8 +364,14 @@ class Type1Font(SimpleFont):
         # fmt: off
         f_out: Font = super(Type1Font, self).__deepcopy__(memodict)
         f_out[Name("Subtype")] = Name("Type1")
-        f_out._character_identifier_to_unicode_lookup: typing.Dict[int, str] = {k: v for k, v in self._character_identifier_to_unicode_lookup.items()}
-        f_out._unicode_lookup_to_character_identifier: typing.Dict[str, int] = {k: v for k, v in self._unicode_lookup_to_character_identifier.items()}
+        f_out._character_identifier_to_unicode_lookup: typing.Dict[
+            int, str
+        ] = dict(self._character_identifier_to_unicode_lookup.items())
+
+        f_out._unicode_lookup_to_character_identifier: typing.Dict[
+            str, int
+        ] = dict(self._unicode_lookup_to_character_identifier.items())
+
         return f_out
         # fmt: on
 
@@ -446,21 +447,21 @@ class StandardType1Font(Type1Font):
             self._unicode_lookup_to_character_identifier: typing.Dict[str, int] = {}
 
             if font_name == "Symbol":
-                self._character_identifier_to_unicode_lookup  = {c:symbol_decode(bytes([c])) for c in range(0, 256)}
-                self._unicode_lookup_to_character_identifier = {v:k for k,v in self._character_identifier_to_unicode_lookup.items()}
+                self._character_identifier_to_unicode_lookup = {
+                    c: symbol_decode(bytes([c])) for c in range(256)
+                }
 
             elif font_name == "ZapfDingbats":
                 self._character_identifier_to_unicode_lookup = {c:zapfdingbats_decode(bytes([c])) for c in range(0, 256)}
-                self._unicode_lookup_to_character_identifier = {v:k for k,v in self._character_identifier_to_unicode_lookup.items()}
-
             else:
                 self[Name("Encoding")] = Name("WinAnsiEncoding")
-                for c in range(0, 256):
+                for c in range(256):
                     try:
                         self._character_identifier_to_unicode_lookup[c] = bytes([c]).decode("cp1252")
                     except:
                         self._character_identifier_to_unicode_lookup[c] = ""
-                self._unicode_lookup_to_character_identifier = {v:k for k,v in self._character_identifier_to_unicode_lookup.items()}
+
+            self._unicode_lookup_to_character_identifier = {v:k for k,v in self._character_identifier_to_unicode_lookup.items()}
 
     # fmt: on
 
@@ -520,8 +521,14 @@ class StandardType1Font(Type1Font):
         # fmt: off
         f_out: Font = super(StandardType1Font, self).__deepcopy__(memodict)
         f_out[Name("Subtype")] = Name("Type1")
-        f_out._character_identifier_to_unicode_lookup: typing.Dict[int, str] = {k: v for k, v in self._character_identifier_to_unicode_lookup.items()}
-        f_out._unicode_lookup_to_character_identifier: typing.Dict[str, int] = {k: v for k, v in self._unicode_lookup_to_character_identifier.items()}
+        f_out._character_identifier_to_unicode_lookup: typing.Dict[
+            int, str
+        ] = dict(self._character_identifier_to_unicode_lookup.items())
+
+        f_out._unicode_lookup_to_character_identifier: typing.Dict[
+            str, int
+        ] = dict(self._unicode_lookup_to_character_identifier.items())
+
         f_out._afm = self._afm
         return f_out
         # fmt: on

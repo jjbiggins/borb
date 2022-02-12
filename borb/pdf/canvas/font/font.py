@@ -169,7 +169,7 @@ class Font(Dictionary):
             if token.get_text() == "beginbfchar":
                 assert prev_token is not None
                 number_of_lines_001: int = int(prev_token.get_text())
-                for _ in range(0, number_of_lines_001):
+                for _ in range(number_of_lines_001):
                     token = cmap_tokenizer.next_non_comment_token()
                     assert token is not None
                     char_code: int = int(token.get_text()[1:-1], 16)
@@ -189,7 +189,7 @@ class Font(Dictionary):
             if token.get_text() == "begincidrange":
                 assert prev_token is not None
                 number_of_lines_002: int = int(prev_token.get_text())
-                for _ in range(0, number_of_lines_002):
+                for _ in range(number_of_lines_002):
 
                     token = cmap_tokenizer.next_non_comment_token()
                     assert token is not None
@@ -212,7 +212,7 @@ class Font(Dictionary):
             if token.get_text() == "beginbfrange":
                 assert prev_token is not None
                 number_of_lines_003: int = int(prev_token.get_text())
-                for _ in range(0, number_of_lines_003):
+                for _ in range(number_of_lines_003):
 
                     token = cmap_tokenizer.next_non_comment_token()
                     assert token is not None
@@ -230,7 +230,13 @@ class Font(Dictionary):
                         unicode_base_str: str = str(token.get_text())[1:-1]
                         for i in range(char_code_start_003, char_code_stop_003 + 1):
                             unicode_hex: str = hex(int(unicode_base_str, 16) + (i - char_code_start_003))[2:]
-                            unicode_hex = ("".join(["0" for _ in range(0, 4 - len(unicode_hex) % 4)]) + unicode_hex)
+                            unicode_hex = (
+                                "".join(
+                                    ["0" for _ in range(4 - len(unicode_hex) % 4)]
+                                )
+                                + unicode_hex
+                            )
+
                             unicode_hex = "".join([chr(int(unicode_hex[j: j + 4], 16)) for j in range(0, len(unicode_hex), 4)])
                             out_map[i] = unicode_hex
                         continue
@@ -241,7 +247,18 @@ class Font(Dictionary):
                             token = cmap_tokenizer.next_non_comment_token()
                             assert token is not None
                             unicode_base_str_003: str = str(token.get_text())[1:-1]
-                            unicode_hex = ("".join(["0" for _ in range(0, 4 - len(unicode_base_str_003) % 4)]) + unicode_base_str_003)
+                            unicode_hex = (
+                                "".join(
+                                    [
+                                        "0"
+                                        for _ in range(
+                                            4 - len(unicode_base_str_003) % 4
+                                        )
+                                    ]
+                                )
+                                + unicode_base_str_003
+                            )
+
                             unicode_hex = "".join([chr(int(unicode_hex[j: j + 4], 16)) for j in range(0, len(unicode_hex), 4)])
                             out_map[i] = unicode_hex
                         # read END_ARRAY
@@ -369,10 +386,6 @@ class Font(Dictionary):
         if "FontWeight" in f0:
             f1[Name("FontWeight")] = f0["FontWeight"]
         f1[Name("Flags")] = f0["Flags"]
-        if "FontBBox" in f0 and False:  # TODO
-            f1[Name("FontBBox")] = List().set_can_be_referenced(False)  # type: ignore [attr-defined]
-            for i in range(0, len(f0["FontBBox"])):
-                f1["FontBBox"].append(f0["FontBBox"][i])
         f1[Name("ItalicAngle")] = f0["ItalicAngle"]
         if "Ascent" in f0:
             f1[Name("Ascent")] = f0["Ascent"]
@@ -394,14 +407,6 @@ class Font(Dictionary):
             f1[Name("MaxWidth")] = f0["MaxWidth"]
         if "MissingWidth" in f0:
             f1[Name("MissingWidth")] = f0["MissingWidth"]
-        if "FontFile" in f0 and False:  # TODO
-            f1[Name("FontFile")] = copy.deepcopy(f0["FontFile"])
-        if "FontFile2" in f0 and False:  # TODO
-            f1[Name("FontFile2")] = copy.deepcopy(f0["FontFile2"])
-        if "FontFile3" in f0 and False:  # TODO
-            f1[Name("FontFile3")] = copy.deepcopy(f0["FontFile3"])
-        if "CharSet" in f0 and False:  # TODO
-            f1[Name("CharSet")] = f0["CharSet"]
         # default
         for k, v in f0.items():
             if k not in f1:

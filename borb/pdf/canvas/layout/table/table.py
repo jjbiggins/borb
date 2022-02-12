@@ -331,27 +331,24 @@ class Table(LayoutElement):
         e.a. one color for all even rows, and a contrasting color for the odd rows.
         This function returns self.
         """
-        for r in range(0, self._number_of_rows):
+        for r in range(self._number_of_rows):
             for tc in self._get_cells_at_row(r):
-                if r % 2 == 0:
-                    tc._background_color = even_row_color
-                else:
-                    tc._background_color = odd_row_color
+                tc._background_color = even_row_color if r % 2 == 0 else odd_row_color
         return self
 
     def _get_cells_at_column(self, column: int) -> typing.List[TableCell]:
-        out: typing.List[TableCell] = []
-        for t in self._content:
-            if len([p for p in t._table_coordinates if p[1] == column]) > 0:
-                out.append(t)
-        return out
+        return [
+            t
+            for t in self._content
+            if [p for p in t._table_coordinates if p[1] == column]
+        ]
 
     def _get_cells_at_row(self, row: int) -> typing.List[TableCell]:
-        out: typing.List[TableCell] = []
-        for t in self._content:
-            if len([p for p in t._table_coordinates if p[0] == row]) > 0:
-                out.append(t)
-        return out
+        return [
+            t
+            for t in self._content
+            if [p for p in t._table_coordinates if p[0] == row]
+        ]
 
     def add(self, layout_element: LayoutElement) -> "Table":
         """
@@ -373,13 +370,12 @@ class Table(LayoutElement):
 
         # determine gridpoints occupied by the new TableCell
         first_non_complete_row: int = min(
-            [
-                x
-                for x in range(0, self._number_of_rows)
-                if sum([y._col_span for y in self._get_cells_at_row(x)])
-                < self._number_of_columns
-            ]
+            x
+            for x in range(self._number_of_rows)
+            if sum(y._col_span for y in self._get_cells_at_row(x))
+            < self._number_of_columns
         )
+
         # check which columns are already occupied in the current row
         occupied_cols_in_row: typing.List[int] = []
         for c in self._get_cells_at_row(first_non_complete_row):
@@ -388,16 +384,15 @@ class Table(LayoutElement):
             )
         # the first empty column is the lowest number that does not appear in occupied_cols_in_row
         first_empty_column: int = min(
-            [
-                x
-                for x in range(0, self._number_of_columns)
-                if x not in occupied_cols_in_row
-            ]
+            x
+            for x in range(self._number_of_columns)
+            if x not in occupied_cols_in_row
         )
 
+
         # set _table_coordinates
-        for i in range(0, layout_element._row_span):
-            for j in range(0, layout_element._col_span):
+        for i in range(layout_element._row_span):
+            for j in range(layout_element._col_span):
                 layout_element._table_coordinates.append(
                     (first_non_complete_row + i, first_empty_column + j)
                 )

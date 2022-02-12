@@ -59,7 +59,7 @@ class Shape(LayoutElement):
         This function returns the width of this Shape
         """
         min_x = min([x[0] for x in self._points])
-        max_x = max([x[0] for x in self._points])
+        max_x = max(x[0] for x in self._points)
         return max_x - min_x
 
     def get_height(self) -> Decimal:
@@ -67,7 +67,7 @@ class Shape(LayoutElement):
         This function returns the height of this Shape
         """
         min_y = min([x[1] for x in self._points])
-        max_y = max([x[1] for x in self._points])
+        max_y = max(x[1] for x in self._points)
         return max_y - min_y
 
     def scale_down(
@@ -114,8 +114,8 @@ class Shape(LayoutElement):
         """
         This method translates this Shape so its lower left corner aligns with the given coordinates
         """
-        min_x = min([x[0] for x in self._points])
-        min_y = min([x[1] for x in self._points])
+        min_x = min(x[0] for x in self._points)
+        min_y = min(x[1] for x in self._points)
         delta_x = lower_left_x - min_x
         delta_y = lower_left_y - min_y
         self._points = [(x[0] + delta_x, x[1] + delta_y) for x in self._points]

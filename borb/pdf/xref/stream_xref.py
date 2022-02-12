@@ -53,13 +53,12 @@ class StreamXREF(XREF):
         # check widths
         assert "W" in xref_stream
         assert all(
-            [
-                isinstance(xref_stream["W"][x], Decimal)
-                for x in range(0, len(xref_stream["W"]))
-            ]
+            isinstance(xref_stream["W"][x], Decimal)
+            for x in range(len(xref_stream["W"]))
         )
+
         # decode widths
-        widths = [int(xref_stream["W"][x]) for x in range(0, len(xref_stream["W"]))]
+        widths = [int(xref_stream["W"][x]) for x in range(len(xref_stream["W"]))]
         total_entry_width = sum(widths)
 
         # parent
@@ -79,9 +78,6 @@ class StreamXREF(XREF):
         assert "Size" in xref_stream
         assert isinstance(xref_stream["Size"], Decimal)
 
-        # get size
-        number_of_objects = int(xref_stream["Size"])
-
         # index
         index = []
         if "Index" in xref_stream:
@@ -91,6 +87,9 @@ class StreamXREF(XREF):
             assert isinstance(index[0], Decimal)
             assert isinstance(index[1], Decimal)
         else:
+            # get size
+            number_of_objects = int(xref_stream["Size"])
+
             index = [Decimal(0), Decimal(number_of_objects)]
 
         # apply filters
@@ -103,7 +102,7 @@ class StreamXREF(XREF):
             length = int(index[idx + 1])
 
             bptr = 0
-            for i in range(0, length):
+            for i in range(length):
 
                 # object number
                 object_number = start + i
@@ -112,24 +111,24 @@ class StreamXREF(XREF):
                 type = 1
                 if widths[0] > 0:
                     type = 0
-                    for j in range(0, widths[0]):
+                    for _ in range(widths[0]):
                         type = (type << 8) + (xref_stream_decoded_bytes[bptr] & 0xFF)
                         bptr += 1
 
                 # read field 2
                 field2 = 0
-                for j in range(0, widths[1]):
+                for _ in range(widths[1]):
                     field2 = (field2 << 8) + (xref_stream_decoded_bytes[bptr] & 0xFF)
                     bptr += 1
 
                 # read field 3
                 field3 = 0
-                for j in range(0, widths[2]):
+                for _ in range(widths[2]):
                     field3 = (field3 << 8) + (xref_stream_decoded_bytes[bptr] & 0xFF)
                     bptr += 1
 
                 # check type
-                assert type in [0, 1, 2]
+                assert type in {0, 1, 2}
 
                 pdf_indirect_reference = None
                 if type == 0:
@@ -146,7 +145,7 @@ class StreamXREF(XREF):
                         is_in_use=False,
                     )
 
-                if type == 1:
+                elif type == 1:
                     # Type      : The type of this entry, which shall be 1. Type 1 entries define
                     # objects that are in use but are not compressed (corresponding
                     # to n entries in a cross-reference table).
@@ -160,7 +159,7 @@ class StreamXREF(XREF):
                         generation_number=field3,
                     )
 
-                if type == 2:
+                elif type == 2:
                     # Type      : The type of this entry, which shall be 2. Type 2 entries define
                     # compressed objects.
                     # field2    : The object number of the object stream in which this object is
@@ -195,12 +194,10 @@ class StreamXREF(XREF):
                     and existing_indirect_ref.generation_number
                     == pdf_indirect_reference.generation_number
                 )
-                ref_is_first_encountered = existing_indirect_ref is None or (
+                if ref_is_first_encountered := existing_indirect_ref is None or (
                     not ref_is_in_reading_state
                     and existing_indirect_ref.document is None
-                )
-
-                if ref_is_first_encountered:
+                ):
                     assert pdf_indirect_reference is not None
                     indirect_references.append(pdf_indirect_reference)
                 elif ref_is_in_reading_state:

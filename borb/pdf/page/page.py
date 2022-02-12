@@ -149,7 +149,7 @@ class Page(Dictionary):
         :param field_name:  the field_name to be queried
         :return:            True if this Page contains a form field with the given field_name
         """
-        assert len(field_name) != 0
+        assert field_name != ''
         return (
             len(
                 [

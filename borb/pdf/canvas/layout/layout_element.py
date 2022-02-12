@@ -186,8 +186,8 @@ class LayoutElement:
             # fmt: off
             decoded_bytes_last_char: str = str(content_stream["DecodedBytes"][-1:], encoding="latin1")
             if decoded_bytes_last_char not in [" ", "\t", "\n"] and instructions[0] not in [" ", "\t", "\n"]:
-                instructions = " " + instructions
-            # fmt: on
+                instructions = f' {instructions}'
+                # fmt: on
 
         content_stream[Name("DecodedBytes")] += instructions.encode("latin1")
         content_stream[Name("Bytes")] = zlib.compress(content_stream["DecodedBytes"], 9)
@@ -350,9 +350,10 @@ class LayoutElement:
             added_content = content_stream[Name("DecodedBytes")][
                 len_decoded_bytes_before:
             ]
-            content_stream[Name("DecodedBytes")] = content_stream[Name("DecodedBytes")][
-                0:len_decoded_bytes_before
-            ]
+            content_stream[Name("DecodedBytes")] = content_stream[
+                Name("DecodedBytes")
+            ][:len_decoded_bytes_before]
+
 
             # add background
             self._draw_background(page, final_layout_box)

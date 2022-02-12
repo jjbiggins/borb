@@ -54,7 +54,7 @@ class ShowTextWithGlyphPositioning(CanvasOperator):
                 "Font", canvas.graphics_state.font
             )
 
-        for i in range(0, len(operands[0])):
+        for i in range(len(operands[0])):
             obj = operands[0][i]
 
             # display string

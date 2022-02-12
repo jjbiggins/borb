@@ -40,8 +40,10 @@ class CodeTagTransformer(BaseTagTransformer):
         This method transforms a <code> tag to its corresponding LayoutElement
         """
         assert all(
-            [self._contains_only_text_children(x) for x in html_element.getchildren()]
+            self._contains_only_text_children(x)
+            for x in html_element.getchildren()
         )
+
 
         # font
         # TODO: verify what happens (in browsers) when you wrap <code> in <b>, <i>, <em>, etc

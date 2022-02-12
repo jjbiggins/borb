@@ -58,28 +58,20 @@ class PDFMatch:
             bb: Rectangle = self._glyph_bounding_boxes[i]
             y_delta: Decimal = abs(bb.get_y() - prev_group_of_rectangles[-1].get_y())
             if y_delta > 12:
-                max_x = max(
-                    [(x.get_x() + x.get_width()) for x in prev_group_of_rectangles]
-                )
-                min_x = min([x.get_x() for x in prev_group_of_rectangles])
-                max_y = max(
-                    [(x.get_y() + x.get_height()) for x in prev_group_of_rectangles]
-                )
+                max_x = max(x.get_x() + x.get_width() for x in prev_group_of_rectangles)
+                min_x = min(x.get_x() for x in prev_group_of_rectangles)
+                max_y = max(x.get_y() + x.get_height() for x in prev_group_of_rectangles)
                 min_y = min([x.get_y() for x in prev_group_of_rectangles])
                 out.append(Rectangle(min_x, min_y, max_x - min_x, max_y - min_y))
                 prev_group_of_rectangles.clear()
-                prev_group_of_rectangles.append(bb)
-                continue
-            else:
-                prev_group_of_rectangles.append(bb)
-
+            prev_group_of_rectangles.append(bb)
         if len(prev_group_of_rectangles) > 0:
-            max_x = max([(x.get_x() + x.get_width()) for x in prev_group_of_rectangles])
-            min_x = min([x.get_x() for x in prev_group_of_rectangles])
+            max_x = max(x.get_x() + x.get_width() for x in prev_group_of_rectangles)
+            min_x = min(x.get_x() for x in prev_group_of_rectangles)
             max_y = max(
                 [(x.get_y() + x.get_height()) for x in prev_group_of_rectangles]
             )
-            min_y = min([x.get_y() for x in prev_group_of_rectangles])
+            min_y = min(x.get_y() for x in prev_group_of_rectangles)
             out.append(Rectangle(min_x, min_y, max_x - min_x, max_y - min_y))
         return out
 
@@ -204,7 +196,7 @@ class RegularExpressionTextExtraction(EventListener):
         tris = [x for x in tris if len(x.get_text().replace(" ", "")) != 0]
 
         # skip empty
-        if len(tris) == 0:
+        if not tris:
             return
 
         # sort according to comparator
@@ -224,10 +216,8 @@ class RegularExpressionTextExtraction(EventListener):
             assert chunk_of_text_bounding_box is not None
 
             # add newline if needed
-            if abs(t.get_baseline().y - last_baseline_bottom) > 10 and len(text) > 0:
-                if text.endswith(" "):
-                    text = text[0:-1]
-                text += "\n"
+            if abs(t.get_baseline().y - last_baseline_bottom) > 10 and text != '':
+                text = text.removesuffix(" ") + "\n"
                 text += t.get_text()
                 last_baseline_right = (
                     chunk_of_text_bounding_box.get_x()

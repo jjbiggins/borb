@@ -227,7 +227,7 @@ class CanvasStreamProcessor:
         self,
         io_source: typing.Union[io.BytesIO, io.IOBase],
         event_listeners: typing.List["EventListener"] = [],  # type: ignore [name-defined]
-    ) -> "CanvasStreamProcessor":  # type: ignore [name-defined]
+    ) -> "CanvasStreamProcessor":    # type: ignore [name-defined]
         """
         This method reads a byte stream of canvas operators, and processes them, returning this Canvas afterwards
         """
@@ -268,7 +268,7 @@ class CanvasStreamProcessor:
             if not self._canvas.in_compatibility_section:
                 assert len(operand_stk) >= operator.get_number_of_operands()
             operands: typing.List[AnyPDFType] = []  # type: ignore [name-defined]
-            for _ in range(0, operator.get_number_of_operands()):
+            for _ in range(operator.get_number_of_operands()):
                 operands.insert(0, operand_stk.pop(-1))
 
             # invoke

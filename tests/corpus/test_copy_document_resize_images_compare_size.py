@@ -71,13 +71,12 @@ class TestCopyDocumentResizeImagesCompareSize(unittest.TestCase):
                 self.number_of_passes += 1
             except:
                 self.number_of_fails += 1
-                pass
             self._build_document()
 
     def _test_single_document(self, file: Path):
 
         # determine output location
-        out_file = self.output_dir / (file.stem + "_copy.pdf")
+        out_file = self.output_dir / f'{file.stem}_copy.pdf'
 
         # read document
         doc = None
@@ -133,41 +132,27 @@ class TestCopyDocumentResizeImagesCompareSize(unittest.TestCase):
         )
         sizes = [
             sum(
-                [
-                    1
-                    for k, v in self.memory_stats_per_document.items()
-                    if (v[0] - v[1]) / v[0] > 0.1
-                ]
+                (v[0] - v[1]) / v[0] > 0.1
+                for k, v in self.memory_stats_per_document.items()
             ),
             sum(
-                [
-                    1
-                    for k, v in self.memory_stats_per_document.items()
-                    if 0.05 < (v[0] - v[1]) / v[0] <= 0.1
-                ]
+                0.05 < (v[0] - v[1]) / v[0] <= 0.1
+                for k, v in self.memory_stats_per_document.items()
             ),
             sum(
-                [
-                    1
-                    for k, v in self.memory_stats_per_document.items()
-                    if -0.05 < (v[0] - v[1]) / v[0] <= 0.05
-                ]
+                -0.05 < (v[0] - v[1]) / v[0] <= 0.05
+                for k, v in self.memory_stats_per_document.items()
             ),
             sum(
-                [
-                    1
-                    for k, v in self.memory_stats_per_document.items()
-                    if -0.1 < (v[0] - v[1]) / v[0] <= -0.05
-                ]
+                -0.1 < (v[0] - v[1]) / v[0] <= -0.05
+                for k, v in self.memory_stats_per_document.items()
             ),
             sum(
-                [
-                    1
-                    for k, v in self.memory_stats_per_document.items()
-                    if (v[0] - v[1]) / v[0] <= -0.1
-                ]
+                (v[0] - v[1]) / v[0] <= -0.1
+                for k, v in self.memory_stats_per_document.items()
             ),
         ]
+
         explode = (0.1, 0, 0, 0, 0)  # only "explode" the 2nd slice (i.e. '<1s')
         fig1, ax1 = plt.subplots()
         ax1.pie(

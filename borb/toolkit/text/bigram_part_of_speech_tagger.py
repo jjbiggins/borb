@@ -71,7 +71,7 @@ class BigramPartOfSpeechTagger:
         return {
             "_tags_per_word": self._tags_per_word,
             "_2_step_transitions": {
-                (t[0] + "_" + t[1]): f for t, f in self._2_step_transitions.items()
+                f'{t[0]}_{t[1]}': f for t, f in self._2_step_transitions.items()
             },
             "_tags_per_word_ending": self._tags_per_word_ending,
         }
@@ -126,9 +126,10 @@ class BigramPartOfSpeechTagger:
             w = w.upper()
             if w in self._tags_per_word:
                 normalized_tags: typing.Dict[str, float] = {
-                    t: f / sum([x for _, x in self._tags_per_word[w].items()])
+                    t: f / sum(x for _, x in self._tags_per_word[w].items())
                     for t, f in self._tags_per_word[w].items()
                 }
+
                 max_tag: typing.Optional[str] = None
                 for t, f in normalized_tags.items():
                     if max_tag is None or f > normalized_tags[max_tag]:
@@ -163,12 +164,11 @@ class BigramPartOfSpeechTagger:
 
         # determine first_unknown_tag_index
         first_unknown_tag_index: typing.Optional[int] = None
-        for i in range(0, len(tokens)):
+        for i in range(len(tokens)):
             if tags[i] is not None:
                 continue
-            if tags[i] is None:
-                first_unknown_tag_index = i
-                break
+            first_unknown_tag_index = i
+            break
 
         if first_unknown_tag_index is None:
             if self._odds_best_tagging is None or p > self._odds_best_tagging:
@@ -182,21 +182,28 @@ class BigramPartOfSpeechTagger:
         possible_tags: typing.Dict[str, Decimal] = {"nn": Decimal(1)}
         if w in self._tags_per_word:
             possible_tags = {
-                t: Decimal(f / sum([x for _, x in self._tags_per_word[w].items()]))
+                t: Decimal(f / sum(x for _, x in self._tags_per_word[w].items()))
                 for t, f in self._tags_per_word[w].items()
             }
+
         if len(possible_tags) == 0:
             suffix: str = w[-3:]
             if suffix in self._tags_per_word_ending:
                 possible_tags = {
                     t: Decimal(
-                        f
-                        / sum(
-                            [x for _, x in self._tags_per_word_ending[suffix].items()]
+                        (
+                            f
+                            / sum(
+                                x
+                                for _, x in self._tags_per_word_ending[
+                                    suffix
+                                ].items()
+                            )
                         )
                     )
                     for t, f in self._tags_per_word_ending[suffix].items()
                 }
+
 
         # recursion
         prev_tag: typing.Optional[str] = None
@@ -208,15 +215,16 @@ class BigramPartOfSpeechTagger:
             tag_odds[first_unknown_tag_index] = f
             if prev_tag is not None:
                 transition_odds[first_unknown_tag_index - 1] = Decimal(
-                    self._2_step_transitions.get((prev_tag, t), 0)
-                    / sum(
-                        [
+                    (
+                        self._2_step_transitions.get((prev_tag, t), 0)
+                        / sum(
                             x
                             for p, x in self._2_step_transitions.items()
                             if p[0] == prev_tag
-                        ]
+                        )
                     )
                 )
+
 
             # recursion
             self._tag_by_transition(tokens, tags, tag_odds, transition_odds)
@@ -254,7 +262,7 @@ class BigramPartOfSpeechTagger:
             prev_tok += c
         toks.append(prev_tok)
         toks = [x for x in toks if len(x) != 0]
-        return [x for x in zip(toks, self.tag_list_str(toks))]
+        return list(zip(toks, self.tag_list_str(toks)))
 
     def tag_list_str(self, tokens: typing.List[str]) -> typing.List[str]:
         """
@@ -262,7 +270,7 @@ class BigramPartOfSpeechTagger:
         This function returns typing.List[str] representing the part-of-speech tag of each token.
         """
         if len(tokens) > 16:
-            return self.tag_list_str(tokens[0:16]) + self.tag_list_str(tokens[16:])
+            return self.tag_list_str(tokens[:16]) + self.tag_list_str(tokens[16:])
 
         # init
         self._odds_best_tagging = None
@@ -278,15 +286,16 @@ class BigramPartOfSpeechTagger:
         for i in range(1, len(tags)):
             if tags[i - 1] is not None and tags[i] is not None:
                 p: Decimal = Decimal(
-                    self._2_step_transitions.get((tags[i - 1], tags[i]), 0)
-                    / sum(
-                        [
+                    (
+                        self._2_step_transitions.get((tags[i - 1], tags[i]), 0)
+                        / sum(
                             x
                             for j, x in self._2_step_transitions.items()
                             if j[0] == tags[i - 1]
-                        ]
+                        )
                     )
                 )
+
                 transition_odds.append(p)
             else:
                 transition_odds.append(None)

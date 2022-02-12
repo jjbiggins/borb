@@ -60,8 +60,8 @@ class ColorSpectrumExtraction(EventListener):
             event.get_image().width * event.get_image().height
         )
         color_count: typing.Dict[RGBColor, Decimal] = {}
-        for i in range(0, event.get_image().width):
-            for j in range(0, event.get_image().height):
+        for i in range(event.get_image().width):
+            for j in range(event.get_image().height):
                 c = ColorSpectrumExtraction._get_rgb_from_image(event.get_image(), i, j)
                 if c not in color_count:
                     color_count[c] = Decimal(1)
@@ -95,13 +95,13 @@ class ColorSpectrumExtraction(EventListener):
     def _register_color(self, amount: Decimal, color: RGBColor):
         mod_step = int(255 / (self._maximum_number_of_colors ** (1.0 / 3)))
         r = int(color.to_rgb().red * 255)
-        r = r - r % mod_step
+        r -= r % mod_step
 
         g = int(color.to_rgb().green * 255)
-        g = g - g % mod_step
+        g -= g % mod_step
 
         b = int(color.to_rgb().blue * 255)
-        b = b - b % mod_step
+        b -= b % mod_step
 
         t = (r, g, b)
         if t not in self._colors_per_page[self._current_page]:
@@ -117,7 +117,7 @@ class ColorSpectrumExtraction(EventListener):
         """
         if limit is None:
             limit = 32
-        tmp = sorted(
+        return sorted(
             [
                 (
                     RGBColor(
@@ -129,5 +129,4 @@ class ColorSpectrumExtraction(EventListener):
             ],
             key=lambda x: x[1],
             reverse=True,
-        )[0:limit]
-        return tmp
+        )[:limit]

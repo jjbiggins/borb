@@ -40,9 +40,9 @@ class AlternateSyntaxHeadingTransformer(Transformer):
         line_of_dashes: str = context.get_markdown_string()[
             next_newline_pos:next_next_newline_pos
         ].strip()
-        return len(line_of_dashes) > 0 and (
-            all([c == "=" for c in line_of_dashes])
-            or all([c == "-" for c in line_of_dashes])
+        return line_of_dashes != '' and (
+            all(c == "=" for c in line_of_dashes)
+            or all(c == "-" for c in line_of_dashes)
         )
 
     def _transform(self, context: TransformerState) -> None:

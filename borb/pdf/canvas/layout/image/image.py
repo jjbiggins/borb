@@ -65,16 +65,13 @@ class Image(LayoutElement):
         if "XObject" not in page["Resources"]:
             page["Resources"][Name("XObject")] = Dictionary()
 
-        # insert font into resources
-        image_resource_name = [
+        if image_resource_name := [
             k for k, v in page["Resources"]["XObject"].items() if v == image
-        ]
-        if len(image_resource_name) > 0:
+        ]:
             return image_resource_name[0]
-        else:
-            image_index = len(page["Resources"]["XObject"]) + 1
-            page["Resources"]["XObject"][Name("Im%d" % image_index)] = image
-            return Name("Im%d" % image_index)
+        image_index = len(page["Resources"]["XObject"]) + 1
+        page["Resources"]["XObject"][Name("Im%d" % image_index)] = image
+        return Name("Im%d" % image_index)
 
     def _calculate_layout_box_without_padding(
         self, page: "Page", bounding_box: Rectangle  # type: ignore[name-defined]

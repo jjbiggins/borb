@@ -53,7 +53,7 @@ class PDFToJPG(PDFToSVG):
 
     def _find_font_families(self):
         system: str = platform.system()
-        assert system in ["Darwin", "Linux", "Windows"]
+        assert system in {"Darwin", "Linux", "Windows"}
         root_font_dir: typing.Optional[Path] = None
         if system == "Linux":
             root_font_dir = Path("/usr/share/fonts")
@@ -67,31 +67,34 @@ class PDFToJPG(PDFToSVG):
             if f.is_dir():
                 for subdir in f.iterdir():
                     file_stk.append(subdir)
-            else:
-                if f.name.endswith(".ttf"):
-                    ttf_font_files.append(f)
+            elif f.name.endswith(".ttf"):
+                ttf_font_files.append(f)
 
+        suffixes = ["-Regular", "-Italic", "-Bold", "-BoldItalic"]
         # find family of fonts
         for c in ["LiberationSans", "LiberationMono"]:
-            suffixes = ["-Regular", "-Italic", "-Bold", "-BoldItalic"]
-            all_fonts_present = all(
-                [
-                    y in [x.name for x in ttf_font_files]
-                    for y in [c + x + ".ttf" for x in suffixes]
-                ]
-            )
-            if all_fonts_present:
+            if all_fonts_present := all(
+                y in [x.name for x in ttf_font_files]
+                for y in [c + x + ".ttf" for x in suffixes]
+            ):
                 self._regular_font = [
-                    x for x in ttf_font_files if x.name.endswith(c + "-Regular.ttf")
+                    x
+                    for x in ttf_font_files
+                    if x.name.endswith(f'{c}-Regular.ttf')
                 ][0]
+
                 self._bold_font = [
-                    x for x in ttf_font_files if x.name.endswith(c + "-Bold.ttf")
+                    x for x in ttf_font_files if x.name.endswith(f'{c}-Bold.ttf')
                 ][0]
+
                 self._italic_font = [
-                    x for x in ttf_font_files if x.name.endswith(c + "-Italic.ttf")
+                    x for x in ttf_font_files if x.name.endswith(f'{c}-Italic.ttf')
                 ][0]
+
                 self._bold_italic_font = [
-                    x for x in ttf_font_files if x.name.endswith(c + "-BoldItalic.ttf")
+                    x
+                    for x in ttf_font_files
+                    if x.name.endswith(f'{c}-BoldItalic.ttf')
                 ][0]
 
     def _begin_page(

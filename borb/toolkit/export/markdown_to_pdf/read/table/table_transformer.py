@@ -45,16 +45,16 @@ class TableTransformer(Transformer):
 
     def _is_alignment_td(self, td: str) -> bool:
         td_stripped: str = td.strip()
-        if all([x == "-" for x in td_stripped]):
+        if all(x == "-" for x in td_stripped):
             return True
-        if td_stripped.startswith(":") and all([x == "-" for x in td_stripped[1:]]):
+        if td_stripped.startswith(":") and all(x == "-" for x in td_stripped[1:]):
             return True
-        if td_stripped.endswith(":") and all([x == "-" for x in td_stripped[:-1]]):
+        if td_stripped.endswith(":") and all(x == "-" for x in td_stripped[:-1]):
             return True
         if (
             td_stripped.startswith(":")
             and td_stripped.endswith(":")
-            and all([x == "-" for x in td_stripped[1:-1]])
+            and all(x == "-" for x in td_stripped[1:-1])
         ):
             return True
         return False
@@ -72,13 +72,14 @@ class TableTransformer(Transformer):
         index: int = 0
         number_of_columns: int = len(table_lines_raw[0].split("|")) - 2
         column_alignment: typing.List[Alignment] = [
-            Alignment.LEFT for _ in range(0, number_of_columns)
+            Alignment.LEFT for _ in range(number_of_columns)
         ]
+
         table_items_str: typing.List[typing.List[str]] = []
         while index < len(table_lines_raw):
             # process alignment line
             if all(
-                [self._is_alignment_td(x) for x in table_lines_raw[index].split("|")]
+                self._is_alignment_td(x) for x in table_lines_raw[index].split("|")
             ):
                 for i, a in enumerate(table_lines_raw[index].strip().split("|")[1:-1]):
                     a = a.strip()
@@ -105,7 +106,7 @@ class TableTransformer(Transformer):
                 self.get_root()._transform(sub_context)
 
         # set alignment
-        for i in range(0, number_of_columns):
+        for i in range(number_of_columns):
             for td_table_cell in ul._get_cells_at_column(i):
                 td_table_cell._horizontal_alignment = column_alignment[i]
 

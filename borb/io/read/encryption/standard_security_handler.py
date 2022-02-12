@@ -176,13 +176,15 @@ class StandardSecurityHandler:
             # TODO
         if isinstance(object, HexadecimalString):
             hex_str_new_content_bytes: bytes = RC4().encrypt(
-                h.digest()[0:n_plus_5], object.get_content_bytes()
+                h.digest()[:n_plus_5], object.get_content_bytes()
             )
-            # TODO
+
+                # TODO
         if isinstance(object, Stream):
             stream_new_content_bytes: bytes = RC4().encrypt(
-                h.digest()[0:n_plus_5], object["DecodedBytes"]
+                h.digest()[:n_plus_5], object["DecodedBytes"]
             )
+
             object[Name("DecodedBytes")] = stream_new_content_bytes
             object[Name("Bytes")] = zlib.compress(object["DecodedBytes"], 9)
             return object
@@ -232,9 +234,9 @@ class StandardSecurityHandler:
         # bytes of the encryption key as defined by the value of the encryption dictionary’s Length entry.
         if self._revision >= 3:
             n: int = int(self._key_length / 8)
-            for _ in range(0, 50):
+            for _ in range(50):
                 h2 = hashlib.md5()
-                h2.update(digest[0:n])
+                h2.update(digest[:n])
                 digest = h2.digest()
 
         # i) Set the encryption key to the first n bytes of the output from the final MD5 hash, where n shall always be 5
@@ -243,9 +245,7 @@ class StandardSecurityHandler:
         n: int = 5
         if self._revision >= 3:
             n = int(self._key_length / 8)
-        encryption_key: bytes = digest[0:n]
-
-        return encryption_key
+        return digest[:n]
 
     def _compute_encryption_dictionary_o_value(
         self,
@@ -269,8 +269,8 @@ class StandardSecurityHandler:
         # c) (Security handlers of revision 3 or greater) Do the following 50 times: Take the output from the previous
         # MD5 hash and pass it as input into a new MD5 hash.
         if self._revision >= 3:
-            prev_digest: bytes = h.digest()[0 : int(self._key_length / 8)]
-            for _ in range(0, 50):
+            prev_digest: bytes = h.digest()[:int(self._key_length / 8)]
+            for _ in range(50):
                 h = hashlib.md5()
                 h.update(prev_digest)
                 prev_digest: bytes = h.digest()[0 : int(self._key_length / 8)]
@@ -278,9 +278,9 @@ class StandardSecurityHandler:
         # d) Create an RC4 encryption key using the first n bytes of the output from the final MD5 hash, where n shall
         # always be 5 for security handlers of revision 2 but, for security handlers of revision 3 or greater, shall
         # depend on the value of the encryption dictionary’s Length entry.
-        key: bytes = h.digest()[0:5]
+        key: bytes = h.digest()[:5]
         if self._revision >= 3:
-            key = h.digest()[0 : int(self._key_length / 8)]
+            key = h.digest()[:int(self._key_length / 8)]
 
         # e) Pad or truncate the user password string as described in step (a) of "Algorithm 2: Computing an encryption
         # key".
@@ -299,7 +299,7 @@ class StandardSecurityHandler:
         # (exclusive or) operation between that byte and the single-byte value of the iteration counter (from 1 to 19).
         if self._revision >= 3:
             for i in range(1, 20):
-                key2: bytes = bytes([b ^ i for b in key])
+                key2: bytes = bytes(b ^ i for b in key)
                 owner_key = RC4().encrypt(key2, owner_key)
 
         # h) Store the output from the final invocation of the RC4 function as the value of the O entry in the encryption
@@ -352,7 +352,7 @@ class StandardSecurityHandler:
             # byte and the single-byte value of the iteration counter (from 1 to 19).
             if self._revision >= 3:
                 for i in range(1, 20):
-                    key2: bytes = bytes([b ^ i for b in key_rev_3])
+                    key2: bytes = bytes(b ^ i for b in key_rev_3)
                     digest = RC4().encrypt(key2, digest)
 
             # f) Append 16 bytes of arbitrary padding to the output from the final invocation of the RC4 function and store
@@ -421,9 +421,7 @@ class StandardSecurityHandler:
 
     @staticmethod
     def _str_to_bytes(s: typing.Optional[str]) -> typing.Optional[bytes]:
-        if s is None:
-            return None
-        return bytes(s, encoding="charmap")
+        return None if s is None else bytes(s, encoding="charmap")
 
     @staticmethod
     def _pad_or_truncate(b: typing.Optional[bytes]) -> bytes:
@@ -436,8 +434,8 @@ class StandardSecurityHandler:
         if b is None:
             return padding
         if len(b) > 32:
-            return b[0:32]
+            return b[:32]
         if len(b) < 32:
             b2: bytes = b + padding
-            return b2[0:32]
+            return b2[:32]
         return b

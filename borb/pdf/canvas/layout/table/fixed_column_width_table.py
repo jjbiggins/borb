@@ -68,7 +68,7 @@ class FixedColumnWidthTable(Table):
             vertical_alignment=vertical_alignment,
         )
         if len(column_widths) == 0:
-            column_widths = [Decimal(1) for _ in range(0, number_of_columns)]
+            column_widths = [Decimal(1) for _ in range(number_of_columns)]
         assert len(column_widths) == number_of_columns
         self._column_widths: typing.List[Decimal] = column_widths
 
@@ -79,7 +79,7 @@ class FixedColumnWidthTable(Table):
         # calculate column_bounds
         column_bounds: typing.List[Decimal] = [bounding_box.get_x()]
         total_column_width: Decimal = Decimal(sum(self._column_widths))
-        for i in range(0, len(self._column_widths)):
+        for i in range(len(self._column_widths)):
             column_bounds.append(
                 column_bounds[-1]
                 + (
@@ -92,9 +92,10 @@ class FixedColumnWidthTable(Table):
         # auto fill table
         number_of_cells: int = self._number_of_rows * self._number_of_columns
         empty_cells: int = number_of_cells - sum(
-            [(x._row_span * x._col_span) for x in self._content]
+            x._row_span * x._col_span for x in self._content
         )
-        for _ in range(0, empty_cells):
+
+        for _ in range(empty_cells):
             self.add(Paragraph(" ", respect_spaces_in_text=True))
 
         # We are going to store the offset, to ensure we can draw backgrounds and borders later.
@@ -106,17 +107,18 @@ class FixedColumnWidthTable(Table):
         # lay out content
         row_bounds: typing.List[Decimal] = [
             Decimal(floor(bounding_box.get_y() + bounding_box.get_height()))
-            for _ in range(0, self._number_of_rows + 1)
+            for _ in range(self._number_of_rows + 1)
         ]
+
         for t in self._content:
 
             # calculate bounds
             # fmt: off
             assert len(t._table_coordinates) > 0
-            x: Decimal = column_bounds[min([p[1] for p in t._table_coordinates])]
-            w: Decimal = column_bounds[max([p[1] for p in t._table_coordinates]) + 1] - x
+            x: Decimal = column_bounds[min(p[1] for p in t._table_coordinates)]
+            w: Decimal = column_bounds[max(p[1] for p in t._table_coordinates) + 1] - x
             y: Decimal = Decimal(0)
-            h: Decimal = row_bounds[min([p[0] for p in t._table_coordinates])]
+            h: Decimal = row_bounds[min(p[0] for p in t._table_coordinates)]
             # fmt: on
 
             # layout
@@ -125,15 +127,15 @@ class FixedColumnWidthTable(Table):
             assert tbb is not None
 
             # update row_bounds
-            max_row = max([p[0] for p in t._table_coordinates]) + 1
+            max_row = max(p[0] for p in t._table_coordinates) + 1
             row_bounds[max_row] = min(row_bounds[max_row], Decimal(floor(tbb.get_y())))
 
         # update bounds of content
         for t in self._content:
-            x = column_bounds[min([p[1] for p in t._table_coordinates])]
-            w = column_bounds[max([p[1] for p in t._table_coordinates]) + 1] - x
-            max_row = max([p[0] for p in t._table_coordinates]) + 1
-            min_row = min([p[0] for p in t._table_coordinates])
+            x = column_bounds[min(p[1] for p in t._table_coordinates)]
+            w = column_bounds[max(p[1] for p in t._table_coordinates) + 1] - x
+            max_row = max(p[0] for p in t._table_coordinates) + 1
+            min_row = min(p[0] for p in t._table_coordinates)
             y = row_bounds[max_row]
             h = row_bounds[min_row] - y
             t.bounding_box = Rectangle(x, y, w, h)
@@ -141,20 +143,30 @@ class FixedColumnWidthTable(Table):
         # calculate bounding box
         # fmt: off
         bounding_box = Rectangle(
-            min([x.get_bounding_box().get_x() for x in self._content]),     # type: ignore [union-attr]
-            min([x.get_bounding_box().get_y() for x in self._content]),     # type: ignore [union-attr]
-            max([x.get_bounding_box().get_x() + x.get_bounding_box().get_width() for x in self._content]) - min([x.get_bounding_box().get_x() for x in self._content]),     # type: ignore [union-attr]
-            max([x.get_bounding_box().get_y() + x.get_bounding_box().get_height() for x in self._content]) - min([x.get_bounding_box().get_y() for x in self._content]),    # type: ignore [union-attr]
+            min(x.get_bounding_box().get_x() for x in self._content),
+            min(x.get_bounding_box().get_y() for x in self._content),
+            max(
+                x.get_bounding_box().get_x() + x.get_bounding_box().get_width()
+                for x in self._content
+            )
+            - min(x.get_bounding_box().get_x() for x in self._content),
+            max(
+                x.get_bounding_box().get_y() + x.get_bounding_box().get_height()
+                for x in self._content
+            )
+            - min(x.get_bounding_box().get_y() for x in self._content),
         )
+
         # fmt: on
 
         # change content stream to put background before rendering of the content
         table_content_bytes = page["Contents"][Name("DecodedBytes")][
             page_content_stream_marker:
         ]
-        page["Contents"][Name("DecodedBytes")] = page["Contents"][Name("DecodedBytes")][
-            0:page_content_stream_marker
-        ]
+        page["Contents"][Name("DecodedBytes")] = page["Contents"][
+            Name("DecodedBytes")
+        ][:page_content_stream_marker]
+
 
         # draw borders
         for t in self._content:

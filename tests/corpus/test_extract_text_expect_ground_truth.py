@@ -76,12 +76,9 @@ class TestExtractTextExpectGroundTruth(unittest.TestCase):
                     self.fails_per_document[doc.stem] = 0
                 else:
                     self.number_of_fails += 1
-                    self.fails_per_document[doc.stem] = sum(
-                        [abs(v) for k, v in differences.items()]
-                    )
+                    self.fails_per_document[doc.stem] = sum(abs(v) for k, v in differences.items())
             except Exception as ex:
                 self.number_of_fails += 1
-                pass
             self._build_document()
 
     def _build_document(self):
@@ -135,12 +132,13 @@ class TestExtractTextExpectGroundTruth(unittest.TestCase):
         # graph with timing information
         labels = "<1s", "<5s", "<10s", "<30s", ">30s"
         sizes = [
-            sum([1 for k, v in self.time_per_document.items() if v < 1]),
-            sum([1 for k, v in self.time_per_document.items() if 1 <= v < 5]),
-            sum([1 for k, v in self.time_per_document.items() if 5 <= v < 10]),
-            sum([1 for k, v in self.time_per_document.items() if 10 <= v < 30]),
-            sum([1 for k, v in self.time_per_document.items() if v >= 30]),
+            sum(v < 1 for k, v in self.time_per_document.items()),
+            sum(1 <= v < 5 for k, v in self.time_per_document.items()),
+            sum(5 <= v < 10 for k, v in self.time_per_document.items()),
+            sum(10 <= v < 30 for k, v in self.time_per_document.items()),
+            sum(v >= 30 for k, v in self.time_per_document.items()),
         ]
+
         explode = (0.1, 0, 0, 0, 0)  # only "explode" the 2nd slice (i.e. '<1s')
         fig1, ax1 = plt.subplots()
         ax1.pie(
@@ -164,12 +162,13 @@ class TestExtractTextExpectGroundTruth(unittest.TestCase):
             "fail (>30 chars)",
         )
         sizes = [
-            sum([1 for k, v in self.fails_per_document.items() if v == 0]),
-            sum([1 for k, v in self.fails_per_document.items() if 0 < v < 5]),
-            sum([1 for k, v in self.fails_per_document.items() if 5 <= v < 10]),
-            sum([1 for k, v in self.fails_per_document.items() if 10 <= v < 30]),
-            sum([1 for k, v in self.fails_per_document.items() if v >= 30]),
+            sum(v == 0 for k, v in self.fails_per_document.items()),
+            sum(0 < v < 5 for k, v in self.fails_per_document.items()),
+            sum(5 <= v < 10 for k, v in self.fails_per_document.items()),
+            sum(10 <= v < 30 for k, v in self.fails_per_document.items()),
+            sum(v >= 30 for k, v in self.fails_per_document.items()),
         ]
+
         explode = (0.1, 0, 0, 0, 0)  # only "explode" the 2nd slice (i.e. '<1s')
         fig1, ax1 = plt.subplots()
         ax1.pie(
@@ -205,18 +204,19 @@ class TestExtractTextExpectGroundTruth(unittest.TestCase):
         avg_processing_time: float = 0
         if len(self.time_per_document) > 0:
             avg_processing_time = sum(
-                [v for k, v in self.time_per_document.items()]
+                v for k, v in self.time_per_document.items()
             ) / len(self.time_per_document)
+
         ul.add(Paragraph("avg. processing time: %f seconds" % avg_processing_time))
 
         max_processing_time: float = 0
         if len(self.time_per_document) > 0:
-            max_processing_time = max([v for k, v in self.time_per_document.items()])
+            max_processing_time = max(v for k, v in self.time_per_document.items())
         ul.add(Paragraph("max. processing time: %f seconds" % max_processing_time))
 
         min_processing_time: float = 0
         if len(self.time_per_document) > 0:
-            min_processing_time = min([v for k, v in self.time_per_document.items()])
+            min_processing_time = min(v for k, v in self.time_per_document.items())
         ul.add(Paragraph("min. processing time: %f seconds" % min_processing_time))
 
         layout.add(ul)
@@ -225,9 +225,9 @@ class TestExtractTextExpectGroundTruth(unittest.TestCase):
         if len(self.time_per_document) >= 5:
 
             # table of "wrongest" documents
-            tmp = [(k, v) for k, v in self.fails_per_document.items()]
+            tmp = list(self.fails_per_document.items())
             tmp.sort(key=lambda x: x[1], reverse=True)
-            tmp = tmp[0:5]
+            tmp = tmp[:5]
             t: Table = Table(
                 number_of_columns=2,
                 number_of_rows=7,
@@ -254,9 +254,9 @@ class TestExtractTextExpectGroundTruth(unittest.TestCase):
             layout.add(t)
 
             # table of slowest documents
-            tmp = [(k, v) for k, v in self.time_per_document.items()]
+            tmp = list(self.time_per_document.items())
             tmp.sort(key=lambda x: x[1], reverse=True)
-            tmp = tmp[0:5]
+            tmp = tmp[:5]
             t: Table = Table(
                 number_of_columns=2,
                 number_of_rows=7,
@@ -283,9 +283,9 @@ class TestExtractTextExpectGroundTruth(unittest.TestCase):
             layout.add(t)
 
             # table of fastest documents
-            tmp = [(k, v) for k, v in self.time_per_document.items()]
+            tmp = list(self.time_per_document.items())
             tmp.sort(key=lambda x: x[1])
-            tmp = tmp[0:5]
+            tmp = tmp[:5]
             t: Table = Table(
                 number_of_columns=2,
                 number_of_rows=7,
@@ -323,7 +323,7 @@ class TestExtractTextExpectGroundTruth(unittest.TestCase):
 
         txt_001 = ""
         try:
-            with open(self.corpus_dir / (file.stem + ".txt"), "r") as fh_001:
+            with open(self.corpus_dir / f'{file.stem}.txt', "r") as fh_001:
                 txt_001 = fh_001.read()
         except:
             pass
@@ -336,8 +336,8 @@ class TestExtractTextExpectGroundTruth(unittest.TestCase):
 
         differences: typing.Dict[str, int] = {}
         for char in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789":
-            count_001 = sum([1 if c == char else 0 for c in txt_001])
-            count_002 = sum([1 if c == char else 0 for c in txt_002])
+            count_001 = sum(1 if c == char else 0 for c in txt_001)
+            count_002 = sum(1 if c == char else 0 for c in txt_002)
             if count_001 != count_002:
                 differences[char] = count_001 - count_002
 

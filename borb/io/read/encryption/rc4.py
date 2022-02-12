@@ -28,17 +28,17 @@ class RC4:
     """
 
     def __init__(self):
-        self._state = [n for n in range(256)]
+        self._state = list(range(256))
         self._p: int = 0
         self._q: int = 0
 
     def _set_key(self, key: bytes):
-        self._state = [n for n in range(256)]
+        self._state = list(range(256))
         self._p = 0
         self._q = 0
         j: int = 0
         for i in range(256):
-            if len(key) > 0:
+            if key:
                 j = (j + self._state[i] + key[i % len(key)]) % 256
             else:
                 j = (j + self._state[i]) % 256
@@ -62,4 +62,4 @@ class RC4:
         :return:        the encrypted bytes
         """
         self._set_key(key)
-        return bytes([p ^ self._byte_generator() for p in input])
+        return bytes(p ^ self._byte_generator() for p in input)

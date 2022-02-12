@@ -59,10 +59,14 @@ class PageInfo(Dictionary):
         w, h = self.get_width(), self.get_height()
         if w is None or h is None:
             return None
-        for p in PageSize:
-            if abs(w - p.value[1]) <= 1 and abs(h - p.value[1]):
-                return p
-        return None
+        return next(
+            (
+                p
+                for p in PageSize
+                if abs(w - p.value[1]) <= 1 and abs(h - p.value[1])
+            ),
+            None,
+        )
 
     def get_page_number(self) -> Optional[Decimal]:
         """
@@ -70,10 +74,7 @@ class PageInfo(Dictionary):
         """
         kids = self._page.get_parent().get_parent().get("Kids")
         l = int(self._page.get_parent().get_parent().get("Count"))
-        for i in range(0, l):
-            if kids[i] == self._page:
-                return Decimal(i)
-        return None
+        return next((Decimal(i) for i in range(l) if kids[i] == self._page), None)
 
     def uses_color_images(self) -> Optional[bool]:
         """

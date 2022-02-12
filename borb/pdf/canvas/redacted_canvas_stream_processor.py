@@ -61,14 +61,14 @@ class CopyCommandOperator(CanvasOperator):
                 op_str.append("<" + op._text + ">")
                 continue
             if isinstance(op, String):
-                op_str.append("(" + op._text + ")")
+                op_str.append(f'({op._text})')
                 continue
             if isinstance(op, Name):
                 op_str.append("/" + str(op))
                 continue
 
-        canvas_stream_processor._redacted_content += (  # type: ignore [attr-defined]
-            "\n" + "".join([(s + " ") for s in op_str]) + self.get_text()
+        canvas_stream_processor._redacted_content += (
+            "\n" + "".join([f'{s} ' for s in op_str]) + self.get_text()
         )
 
 
@@ -139,19 +139,16 @@ class ShowTextMod(CanvasOperator):
         ).split_on_glyphs():
 
             letter_should_be_redacted: bool = any(
-                [
-                    x.intersects(evt.get_bounding_box())
-                    for x in canvas_stream_processor._redacted_rectangles  # type: ignore[attr-defined]
-                ]
+                x.intersects(evt.get_bounding_box())
+                for x in canvas_stream_processor._redacted_rectangles
             )
+
             graphics_state = canvas_stream_processor.get_canvas().graphics_state
             event_bounding_box: typing.Optional[Rectangle] = evt.get_bounding_box()
             assert event_bounding_box is not None
             w: Decimal = event_bounding_box.get_width()
 
             if letter_should_be_redacted:
-                # update text_matrix
-                graphics_state.text_matrix[2][0] += w
                 # this flag is useful to ensure we only write the Tm command once
                 # it could not hurt to write it several times, but it would be a wasted effort
                 jump_from_redacted = True
@@ -171,9 +168,8 @@ class ShowTextMod(CanvasOperator):
                 self._write_chunk_of_text(
                     canvas_stream_processor, evt.get_text(), evt.get_font()
                 )
-                # update text_matrix
-                graphics_state.text_matrix[2][0] += w
-
+            # update text_matrix
+            graphics_state.text_matrix[2][0] += w
         # restore
         if font_name is not None:
             canvas.graphics_state.font = font_name
@@ -221,7 +217,7 @@ class ShowTextWithGlyphPositioningMod(CanvasOperator):
             )
 
         assert isinstance(operands[0], List)
-        for i in range(0, len(operands[0])):
+        for i in range(len(operands[0])):
             obj = operands[0][i]
 
             # display string
@@ -235,11 +231,10 @@ class ShowTextWithGlyphPositioningMod(CanvasOperator):
                 ).split_on_glyphs():
 
                     letter_should_be_redacted: bool = any(
-                        [
-                            x.intersects(evt.get_bounding_box())
-                            for x in canvas_stream_processor._redacted_rectangles  # type: ignore[attr-defined]
-                        ]
+                        x.intersects(evt.get_bounding_box())
+                        for x in canvas_stream_processor._redacted_rectangles
                     )
+
                     graphics_state = canvas_stream_processor.get_canvas().graphics_state
                     event_bounding_box: typing.Optional[
                         Rectangle
@@ -248,8 +243,6 @@ class ShowTextWithGlyphPositioningMod(CanvasOperator):
                     w: Decimal = event_bounding_box.get_width()
 
                     if letter_should_be_redacted:
-                        # update text_matrix
-                        graphics_state.text_matrix[2][0] += w
                         # this flag is useful to ensure we only write the Tm command once
                         # it could not hurt to write it several times, but it would be a wasted effort
                         jump_from_redacted = True
@@ -269,9 +262,8 @@ class ShowTextWithGlyphPositioningMod(CanvasOperator):
                         self._write_chunk_of_text(
                             canvas_stream_processor, evt.get_text(), evt.get_font()
                         )
-                        # update text_matrix
-                        graphics_state.text_matrix[2][0] += w
-
+                    # update text_matrix
+                    graphics_state.text_matrix[2][0] += w
             # process Decimal objects
             if isinstance(obj, Decimal):
 

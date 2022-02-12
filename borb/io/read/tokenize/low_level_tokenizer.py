@@ -179,7 +179,7 @@ class LowLevelTokenizer:
                 return Token(out_pos, TokenType.HEX_STRING, "<>")
 
             # HEX_STRING
-            out_str = "<" + ch
+            out_str = f'<{ch}'
             while True:
                 ch = self._next_char()
                 if len(ch) == 0:
@@ -212,7 +212,7 @@ class LowLevelTokenizer:
                     break
                 if ch == "\\":
                     ch = self._next_char()
-                    out_str += "\\" + ch
+                    out_str += f'\\{ch}'
                     continue
                 if ch == "(":
                     bracket_nesting_level += 1

@@ -38,8 +38,10 @@ class AbbrTagTransformer(BaseTagTransformer):
         This method transforms a <abbr> tag to its corresponding LayoutElement
         """
         assert all(
-            [self._contains_only_text_children(x) for x in html_element.getchildren()]
+            self._contains_only_text_children(x)
+            for x in html_element.getchildren()
         )
+
 
         # font
         font_name: str = self._get_default_font_for_html_element(

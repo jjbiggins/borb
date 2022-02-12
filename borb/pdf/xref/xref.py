@@ -57,12 +57,10 @@ class XREF(Dictionary):
         file_length = src.tell()
 
         pos = file_length - str_len
-        if pos < 1:
-            pos = 1
-
+        pos = max(pos, 1)
         while pos > 0:
             src.seek(pos)
-            bytes_near_eof = "".join([tok._next_char() for _ in range(0, str_len)])
+            bytes_near_eof = "".join([tok._next_char() for _ in range(str_len)])
             idx = bytes_near_eof.find(text_to_find)
             if idx >= 0:
                 return pos + idx
@@ -127,7 +125,7 @@ class XREF(Dictionary):
                     if x.parent_stream_object_number == r.parent_stream_object_number
                     and x.index_in_parent_stream == r.index_in_parent_stream
                 ]
-            if len(duplicate_entries) == 0:
+            if not duplicate_entries:
                 self.append(r)
         return self
 
@@ -153,24 +151,21 @@ class XREF(Dictionary):
 
         # lookup Reference object for int
         obj = None
-        if isinstance(indirect_reference, int) or isinstance(
-            indirect_reference, Decimal
-        ):
+        if isinstance(indirect_reference, (int, Decimal)):
             refs = [
                 x for x in self._entries if x.object_number == int(indirect_reference)
             ]
-            if len(refs) == 0:
+            if not refs:
                 return None
             indirect_reference = refs[0]
 
-        # lookup Reference (in self) for Reference
         elif isinstance(indirect_reference, Reference):
             refs = [
                 x
                 for x in self._entries
                 if x.object_number == indirect_reference.object_number
             ]
-            if len(refs) == 0:
+            if not refs:
                 return None
             indirect_reference = refs[0]
 
@@ -229,7 +224,7 @@ class XREF(Dictionary):
             length = int(stream_object["Length"])
             if index < length:
                 tok = HighLevelTokenizer(io.BytesIO(stream_bytes))
-                list_of_objs = [tok.read_object() for x in range(0, index + 1)]
+                list_of_objs = [tok.read_object() for x in range(index + 1)]
                 obj = list_of_objs[-1]
             else:
                 obj = None

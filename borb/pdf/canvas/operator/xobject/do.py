@@ -83,5 +83,3 @@ class Do(CanvasOperator):
 
             # return
             return
-
-        pass

@@ -55,11 +55,9 @@ class ChunkOfTextRenderEvent(Event, ChunkOfText):
             min(p0[0], p1[0]), min(p0[1], p1[1]), abs(p1[0] - p0[0]), abs(p1[1] - p0[1])
         )
 
-        # calculate bounding box
-        uses_descent = any(
-            [x in self._text.lower() for x in ["y", "p", "q", "f", "g", "j"]]
-        )
-        if uses_descent:
+        if uses_descent := any(
+            x in self._text.lower() for x in ["y", "p", "q", "f", "g", "j"]
+        ):
             p0 = m.cross(
                 Decimal(0),
                 graphics_state.text_rise

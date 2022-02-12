@@ -67,7 +67,7 @@ def _extract_text(input_file: Path, output: typing.Optional[Path]):
             Decimal
         ] = doc.get_document_info().get_number_of_pages()
         assert number_of_pages is not None
-        for i in range(0, int(number_of_pages)):
+        for i in range(int(number_of_pages)):
             txt_file_handle.write(l.get_text(i))
 
 
@@ -98,9 +98,7 @@ def _extract_files(input_file: Path, output_dir: typing.Optional[Path]):
     with open(input_file, "rb") as pdf_file_handle:
         l = SimpleImageExtraction()
         doc = PDF.loads(pdf_file_handle, [l])
-    i: int = 0
-    for _, content in doc.get_embedded_files().items():
-        i += 1
+    for i, (_, content) in enumerate(doc.get_embedded_files().items(), start=1):
         with open(output_dir / ("image_%d.jpg" % i), "wb") as file_handle:
             file_handle.write(content)
 
@@ -123,10 +121,8 @@ def _extract_regex(input_file: Path, pattern: str, output: typing.Optional[Path]
         Decimal
     ] = doc.get_document_info().get_number_of_pages()
     assert number_of_pages is not None
-    for i in range(0, int(number_of_pages)):
-        for m in l.get_all_matches(i):
-            json_dict.append(
-                {
+    for i in range(int(number_of_pages)):
+        json_dict.extend({
                     "string": m.string,
                     "start": m.start(),
                     "end": m.end(),
@@ -139,8 +135,7 @@ def _extract_regex(input_file: Path, pattern: str, output: typing.Optional[Path]
                         }
                         for x in m.get_bounding_boxes()
                     ],
-                }
-            )
+                } for m in l.get_all_matches(i))
     with open(output, "w") as json_file_handle:
         json_file_handle.write(json.dumps(json_dict, indent=4))
 
@@ -160,7 +155,7 @@ def _redact_regex(input_file: Path, pattern: str, output: typing.Optional[Path])
         doc = PDF.loads(pdf_file_handle, [l])
     number_of_pages: typing.Optional[Decimal] = doc.get_document_info().get_number_of_pages()
     assert number_of_pages is not None
-    for i in range(0, int(number_of_pages)):
+    for i in range(int(number_of_pages)):
         page: Page = doc.get_page(i)
         for m in l.get_all_matches(i):
             for b in m.get_bounding_boxes():

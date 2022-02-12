@@ -19,7 +19,7 @@ class StringTransformer(Transformer):
         """
         This function returns True if the object to be converted represents a String or HexadecimalString
         """
-        return isinstance(any, String) or isinstance(any, HexadecimalString)
+        return isinstance(any, (String, HexadecimalString))
 
     def transform(
         self,

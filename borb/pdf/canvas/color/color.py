@@ -145,20 +145,19 @@ class HexColor(RGBColor):
     """
 
     def __init__(self, hex_string: str):
-        if hex_string.startswith("#"):
-            hex_string = hex_string[1:]
-        assert len(hex_string) == 6 or len(hex_string) == 8
+        hex_string = hex_string.removeprefix("#")
+        assert len(hex_string) in {6, 8}
         r: float = 0
         g: float = 0
         b: float = 0
         a: float = 0
         if len(hex_string) == 6:
             a = 255
-            r = int(hex_string[0:2], 16)
+            r = int(hex_string[:2], 16)
             g = int(hex_string[2:4], 16)
             b = int(hex_string[4:6], 16)
         if len(hex_string) == 8:
-            a = int(hex_string[0:2], 16)
+            a = int(hex_string[:2], 16)
             r = int(hex_string[2:4], 16)
             g = int(hex_string[4:6], 16)
             b = int(hex_string[6:8], 16)
@@ -244,10 +243,7 @@ class HSVColor(Color):
             h = (Decimal(60) * ((b - r) / df) + Decimal(120)) % Decimal(360)
         elif mx == b:
             h = (Decimal(60) * ((r - g) / df) + Decimal(240)) % Decimal(360)
-        if mx == 0:
-            s = Decimal(0)
-        else:
-            s = (df / mx) * 100
+        s = Decimal(0) if mx == 0 else (df / mx) * 100
         v = mx * 100
         HUNDRED = Decimal(100)
         FULL_CIRCLE = Decimal(360)

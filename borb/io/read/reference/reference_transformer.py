@@ -117,7 +117,5 @@ class ReferenceTransformer(Transformer):
                 "Unable to set reference on object %s"
                 % str(transformed_referenced_object)
             )
-            pass
-
         # return
         return transformed_referenced_object

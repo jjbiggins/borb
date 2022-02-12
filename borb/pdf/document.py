@@ -44,7 +44,7 @@ class Document(Dictionary):
         number_of_pages_in_other = int(
             document.get_document_info().get_number_of_pages() or 0
         )
-        for i in range(0, number_of_pages_in_other):
+        for i in range(number_of_pages_in_other):
             self.append_page(document.get_page(i))
         return self
 
@@ -373,22 +373,17 @@ class Document(Dictionary):
             break
 
         # add new child
-        if (
-            len(
-                [
-                    x
-                    for x in parent["Kids"]
-                    if x["Limits"][0] == x["Limits"][1] == file_name
-                ]
-            )
-            == 0
-        ):
+        if not [
+            x
+            for x in parent["Kids"]
+            if x["Limits"][0] == x["Limits"][1] == file_name
+        ]:
 
             kid = Dictionary()
             kid[Name("F")] = String(file_name)
             kid[Name("Type")] = Name("Filespec")
             kid[Name("Limits")] = List()
-            for _ in range(0, 2):
+            for _ in range(2):
                 kid["Limits"].append(String(file_name))
 
             # build leaf /Names dictionary
@@ -413,7 +408,6 @@ class Document(Dictionary):
             # append
             parent["Kids"].append(kid)
 
-        # change existing child
         else:
             kid = [
                 x
@@ -451,12 +445,11 @@ class Document(Dictionary):
 
         nodes_to_visit = [names["EmbeddedFiles"]]
         file_names = []
-        while len(nodes_to_visit) > 0:
+        while nodes_to_visit:
             n = nodes_to_visit[0]
             nodes_to_visit.pop(0)
             if "Kids" in n:
-                for k in n["Kids"]:
-                    nodes_to_visit.append(k)
+                nodes_to_visit.extend(iter(n["Kids"]))
             if "Limits" in n:
                 lower_limit = str(n["Limits"][0])
                 upper_limit = str(n["Limits"][1])

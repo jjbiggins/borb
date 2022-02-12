@@ -84,7 +84,7 @@ class OCRAsOptionalContentGroup(OCRImageRenderEventListener):
             Decimal
         ] = document.get_document_info().get_number_of_pages()
         assert number_of_pages is not None
-        for page_nr in range(0, int(number_of_pages)):
+        for page_nr in range(int(number_of_pages)):
             page: Page = document.get_page(page_nr)
             if "Resources" not in page:
                 page[Name("Resources")] = Dictionary
@@ -111,7 +111,10 @@ class OCRAsOptionalContentGroup(OCRImageRenderEventListener):
                     if self._overlaps_vertically(e1.get_bounding_box(), e2.get_bounding_box()):
                         ds.union(e1, e2)
             for es in ds.sets():
-                avg_y: Decimal = Decimal(sum([x.get_bounding_box().get_y() for x in es]) / len(es))
+                avg_y: Decimal = Decimal(
+                    sum(x.get_bounding_box().get_y() for x in es) / len(es)
+                )
+
                 for e in es:
                     e.get_bounding_box().y = avg_y
             # fmt: on

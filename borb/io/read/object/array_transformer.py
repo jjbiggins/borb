@@ -42,7 +42,7 @@ class ArrayTransformer(Transformer):
         object_to_transform.set_parent(parent_object)  # type: ignore [attr-defined]
 
         # transform child(ren)
-        for i in range(0, len(object_to_transform)):
+        for i in range(len(object_to_transform)):
             object_to_transform[i] = self.get_root_transformer().transform(
                 object_to_transform[i], object_to_transform, context, event_listeners
             )

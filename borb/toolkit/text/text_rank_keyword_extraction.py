@@ -81,7 +81,7 @@ class TextRankKeywordExtraction(SimpleTextExtraction):
             toks = [x[0] for x in tags_and_tokens if x[1] in ["nn", "jj"]]
 
             # build transfer matrix
-            for i0 in range(0, len(toks)):
+            for i0 in range(len(toks)):
                 w0: str = toks[i0].upper()
                 if w0 not in mtx:
                     mtx[w0] = {}
@@ -104,20 +104,18 @@ class TextRankKeywordExtraction(SimpleTextExtraction):
                     eigenvalues_002[w1] += f1 * (eigenvalues_001[w0] / n)
 
             # calculate delta
-            delta = max([abs(eigenvalues_001[x] - eigenvalues_002[x]) for x in ws])
+            delta = max(abs(eigenvalues_001[x] - eigenvalues_002[x]) for x in ws)
             number_of_iterations += 1
 
             # update eigenvalues
-            total_weight: float = sum([f for _, f in eigenvalues_002.items()])
+            total_weight: float = sum(f for _, f in eigenvalues_002.items())
             eigenvalues_001 = {
                 x: (f / total_weight) for x, f in eigenvalues_002.items()
             }
             eigenvalues_002 = {x: 0 for x, _ in mtx.items()}
 
         # store keywords
-        self._keywords_per_page[self._current_page] = [
-            (x, f) for x, f in eigenvalues_001.items()
-        ]
+        self._keywords_per_page[self._current_page] = list(eigenvalues_001.items())
         self._keywords_per_page[self._current_page].sort(
             key=lambda x: x[1], reverse=True
         )

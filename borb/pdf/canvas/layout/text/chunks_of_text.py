@@ -122,12 +122,12 @@ class Span(Paragraph):
         lines: typing.List[typing.Tuple[typing.List[ChunkOfText], Decimal]] = []
         previous_line: typing.List[ChunkOfText] = []
         previous_line_width: Decimal = Decimal(0)
-        for i in range(0, len(self._chunks_of_text)):
+        for i in range(len(self._chunks_of_text)):
             c: ChunkOfText = self._chunks_of_text[i]
             # process LineBreakChunk
             if isinstance(c, LineBreakChunk):
                 if len(previous_line) > 0:
-                    lines.append(([x for x in previous_line], previous_line_width))
+                    lines.append((list(previous_line), previous_line_width))
                 previous_line.clear()
                 previous_line_width = Decimal(0)
                 continue
@@ -144,7 +144,7 @@ class Span(Paragraph):
                 previous_line.append(c)
                 previous_line_width += w
         if len(previous_line) > 0:
-            lines.append(([x for x in previous_line], previous_line_width))
+            lines.append((list(previous_line), previous_line_width))
         return lines
 
     def _do_layout_without_padding(self, page: Page, bounding_box: Rectangle):
@@ -170,8 +170,9 @@ class Span(Paragraph):
         line_y: Decimal = (
             bounding_box.get_y()
             + bounding_box.get_height()
-            - max([x.get_bounding_box().get_height() for x in lines[0][0]])  # type: ignore [union-attr]
+            - max(x.get_bounding_box().get_height() for x in lines[0][0])
         )
+
 
         for line_of_chunks, line_width in lines:
 
@@ -213,8 +214,9 @@ class Span(Paragraph):
 
             # line height
             max_height: Decimal = max(
-                [x.get_bounding_box().get_height() for x in line_of_chunks]
+                x.get_bounding_box().get_height() for x in line_of_chunks
             )
+
             line_height: Decimal = max_height
             if self._fixed_leading is not None:
                 line_height += self._fixed_leading

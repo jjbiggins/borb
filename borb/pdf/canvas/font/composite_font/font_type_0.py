@@ -50,9 +50,7 @@ class Type0Font(Font):
         assert "Encoding" in self
         assert "DecodedBytes" in self["Encoding"]
         cmap_bytes: bytes = self["Encoding"]["DecodedBytes"]
-        self._byte_to_char_identifier = {
-            k: v for k, v in self._read_cmap(cmap_bytes).items()
-        }
+        self._byte_to_char_identifier = dict(self._read_cmap(cmap_bytes).items())
         self._char_to_byte_identifier = {
             v: k for k, v in self._byte_to_char_identifier.items()
         }
@@ -79,7 +77,7 @@ class Type0Font(Font):
             cid: typing.Optional[int] = None
             if isinstance(self["Encoding"], Name):
                 encoding_name: str = str(self["Encoding"])
-                assert encoding_name in ["Identity", "Identity-H"]
+                assert encoding_name in {"Identity", "Identity-H"}
                 cid = character_identifier
             if isinstance(self["Encoding"], Stream):
                 self._read_encoding_cmap()
@@ -119,11 +117,7 @@ class Type0Font(Font):
         registry: str = str(self["DescendantFonts"][0]["CIDSystemInfo"]["Registry"])
         ordering: str = str(self["DescendantFonts"][0]["CIDSystemInfo"]["Ordering"])
 
-        # c) Construct a second CMap name by concatenating the registry and ordering obtained in step (b) in
-        # the format registry–ordering–UCS2 (for example, Adobe–Japan1–UCS2).
-        cmap_name: str = "".join([registry, "-", ordering, "-", "UCS2"])
-
-        return cmap_name
+        return "".join([registry, "-", ordering, "-", "UCS2"])
 
     @staticmethod
     def _find_best_matching_predefined_cmap(cmap_name: str) -> typing.Dict[int, str]:
@@ -146,11 +140,11 @@ class Type0Font(Font):
                 cmap_name = "Adobe-Japan1-0"
                 # fmt: on
 
-            if cmap_name not in predefined_cmaps:
-                # fmt: off
-                logger.info("Encoding %s was specified, defaulting to Adobe-Identity-H in stead" % cmap_name)
-                cmap_name = "Adobe-Identity-H"
-                # fmt: on
+        if cmap_name not in predefined_cmaps:
+            # fmt: off
+            logger.info("Encoding %s was specified, defaulting to Adobe-Identity-H in stead" % cmap_name)
+            cmap_name = "Adobe-Identity-H"
+            # fmt: on
 
         # read predefined cmap
         cmap_bytes: typing.Optional[bytes] = None
@@ -171,10 +165,11 @@ class Type0Font(Font):
             return self._unicode_lookup_to_character_identifier.get(unicode)
 
         if Name("Encoding") in self:
-            assert str(self["Encoding"]) in [
+            assert str(self["Encoding"]) in {
                 "Identity",
                 "Identity-H",
-            ], "Only Identity and Identity-H are currently supported."
+            }, "Only Identity and Identity-H are currently supported."
+
             if len(self._character_identifier_to_unicode_lookup) == 0:
                 self._character_identifier_to_unicode_lookup = (
                     Type0Font._find_best_matching_predefined_cmap(self._get_cmap_name())
@@ -232,7 +227,13 @@ class Type0Font(Font):
         # fmt: off
         f_out: Type0Font = super(Type0Font, self).__deepcopy__(memodict)
         f_out[Name("Subtype")] = Name("Type0")
-        f_out._character_identifier_to_unicode_lookup: typing.Dict[int, str] = {k: v for k, v in self._character_identifier_to_unicode_lookup.items()}
-        f_out._unicode_lookup_to_character_identifier: typing.Dict[str, int] = {k: v for k, v in self._unicode_lookup_to_character_identifier.items()}
+        f_out._character_identifier_to_unicode_lookup: typing.Dict[
+            int, str
+        ] = dict(self._character_identifier_to_unicode_lookup.items())
+
+        f_out._unicode_lookup_to_character_identifier: typing.Dict[
+            str, int
+        ] = dict(self._unicode_lookup_to_character_identifier.items())
+
         return f_out
         # fmt: on

@@ -184,8 +184,6 @@ class PDFToSVG(EventListener):
         image_height: Decimal,
         image: PILImage,
     ):
-        pass
-
         # base64 image
         with io.BytesIO() as output:
             image.convert("RGB").save(output, format="JPEG")

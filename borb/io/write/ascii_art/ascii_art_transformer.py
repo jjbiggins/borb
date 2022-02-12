@@ -48,7 +48,7 @@ class ASCIIArtTransformer(Transformer):
             ascii_logo[-1] += "\n"
 
         # convert to latin1
-        ascii_logo_bytes = [bytes("%    " + x, "utf8") for x in ascii_logo]
+        ascii_logo_bytes = [bytes(f'%    {x}', "utf8") for x in ascii_logo]
 
         self._has_been_used = True
         for x in ascii_logo_bytes:

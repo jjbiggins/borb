@@ -57,4 +57,4 @@ class BodyTagTransformer(BaseTagTransformer):
                 for w in trailing_text.split(" "):
                     if len(w) == 0:
                         continue
-                    layout_element.add(ChunkOfText(w + " "))  # type: ignore[union-attr]
+                    layout_element.add(ChunkOfText(f'{w} '))

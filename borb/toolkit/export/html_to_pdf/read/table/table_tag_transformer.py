@@ -44,25 +44,21 @@ class TableTagTransformer(Transformer):
             html_element,
         )
         number_of_rows: int = sum(
-            [
-                int(x.get("rowspan", "1"))
-                for x in tbody_element.getchildren()
-                if x.tag == "tr"
-            ]
+            int(x.get("rowspan", "1"))
+            for x in tbody_element.getchildren()
+            if x.tag == "tr"
         )
+
         number_of_cols: int = max(
-            [
-                sum(
-                    [
-                        int(y.get("colspan", "1"))
-                        for y in x.getchildren()
-                        if y.tag == "td"
-                    ]
-                )
-                for x in tbody_element.getchildren()
-                if x.tag == "tr"
-            ]
+            sum(
+                int(y.get("colspan", "1"))
+                for y in x.getchildren()
+                if y.tag == "td"
+            )
+            for x in tbody_element.getchildren()
+            if x.tag == "tr"
         )
+
 
         table: Table = FlexibleColumnWidthTable(
             number_of_rows=number_of_rows,

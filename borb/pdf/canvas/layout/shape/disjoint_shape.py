@@ -47,16 +47,16 @@ class DisjointShape(LayoutElement):
         """
         This function returns the width of this DisjointShape
         """
-        min_x = min([min(x[0][0], x[1][0]) for x in self._lines])
-        max_x = max([max(x[0][0], x[1][0]) for x in self._lines])
+        min_x = min(min(x[0][0], x[1][0]) for x in self._lines)
+        max_x = max(max(x[0][0], x[1][0]) for x in self._lines)
         return max_x - min_x
 
     def get_height(self) -> Decimal:
         """
         This function returns the height of this DisjointShape
         """
-        min_y = min([min(x[0][1], x[1][1]) for x in self._lines])
-        max_y = max([max(x[0][1], x[1][1]) for x in self._lines])
+        min_y = min(min(x[0][1], x[1][1]) for x in self._lines)
+        max_y = max(max(x[0][1], x[1][1]) for x in self._lines)
         return max_y - min_y
 
     def scale_to_fit(self, max_width: Decimal, max_height: Decimal) -> "DisjointShape":
@@ -86,8 +86,8 @@ class DisjointShape(LayoutElement):
         """
         This method translates this DisjointShape so its lower left corner aligns with the given coordinates
         """
-        min_x = min([min(x[0][0], x[1][0]) for x in self._lines])
-        min_y = min([min(x[0][1], x[1][1]) for x in self._lines])
+        min_x = min(min(x[0][0], x[1][0]) for x in self._lines)
+        min_y = min(min(x[0][1], x[1][1]) for x in self._lines)
         delta_x = lower_left_x - min_x
         delta_y = lower_left_y - min_y
         self._lines = [
