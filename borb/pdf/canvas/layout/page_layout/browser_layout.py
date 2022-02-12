@@ -71,7 +71,7 @@ class BrowserLayoutRow:
         This function returns the smallest y-value for any LayoutElement in this BrowserLayoutRow.
         """
         assert len(self._layout_elements) > 0
-        return min([e.get_bounding_box().get_y() for e in self._layout_elements])  # type: ignore [union-attr]
+        return min(e.get_bounding_box().get_y() for e in self._layout_elements)
 
     def get_margin_bottom(self) -> Decimal:
         """
@@ -88,10 +88,8 @@ class BrowserLayoutRow:
         This function returns the largest x-value for any LayoutElement in this BrowserLayoutRow
         """
         return max(
-            [
-                e.get_bounding_box().get_x() + e.get_bounding_box().get_width()
-                for e in self._layout_elements
-            ]
+            e.get_bounding_box().get_x() + e.get_bounding_box().get_width()
+            for e in self._layout_elements
         )
 
     def get_margin_right(self):
@@ -173,9 +171,7 @@ class BrowserLayout(PageLayout):
         # BLOCK ELEMENTS
         #
         display_value: DisplayValue = DisplayValue.BLOCK
-        if isinstance(layout_element, UnorderedList) or isinstance(
-            layout_element, OrderedList
-        ):
+        if isinstance(layout_element, (UnorderedList, OrderedList)):
             display_value = DisplayValue.BLOCK
         elif isinstance(layout_element, Heading):
             display_value = DisplayValue.BLOCK
@@ -185,16 +181,10 @@ class BrowserLayout(PageLayout):
             display_value = DisplayValue.BLOCK
         elif isinstance(layout_element, Table):
             display_value = DisplayValue.BLOCK
-        #
-        # INLINE ELEMENTS
-        #
         elif isinstance(layout_element, Image):
             display_value = DisplayValue.INLINE
         elif isinstance(layout_element, ChunkOfText):
             display_value = DisplayValue.INLINE
-        #
-        # DEFAULT
-        #
         else:
             display_value = DisplayValue.BLOCK
 

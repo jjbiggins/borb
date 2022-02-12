@@ -78,7 +78,7 @@ class UnorderedListTransformer(Transformer):
                 sublist_end_index: int = index
                 while sublist_end_index < len(list_lines_raw) and list_lines_raw[
                     sublist_end_index
-                ].startswith("".join([" " for _ in range(0, indentation_level)])):
+                ].startswith("".join([" " for _ in range(indentation_level)])):
                     sublist_end_index += 1
                 list_items_str.append(
                     "".join(

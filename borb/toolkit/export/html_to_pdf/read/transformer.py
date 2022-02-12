@@ -143,11 +143,10 @@ class Transformer:
     def _contains_only_text_children(self, html_element: ET.Element) -> bool:
         if html_element.tag in ["p", "em", "i", "b", "strong"]:
             return all(
-                [
-                    self._contains_only_text_children(e)
-                    for e in html_element.getchildren()
-                ]
+                self._contains_only_text_children(e)
+                for e in html_element.getchildren()
             )
+
         else:
             return False
 
@@ -158,8 +157,6 @@ class Transformer:
             return len(html_element.getchildren()) <= 1
         else:
             return all(
-                [
-                    self._contains_only_text_children(x)
-                    for x in html_element.getchildren()
-                ]
+                self._contains_only_text_children(x)
+                for x in html_element.getchildren()
             )

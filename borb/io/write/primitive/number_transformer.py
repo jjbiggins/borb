@@ -33,9 +33,7 @@ class NumberTransformer(Transformer):
         assert context.destination is not None
         assert isinstance(object_to_transform, Decimal)
 
-        is_integer = object_to_transform == int(object_to_transform)
-
-        if is_integer:
+        if is_integer := object_to_transform == int(object_to_transform):
             context.destination.write(bytes(str(int(object_to_transform)), "latin1"))
         else:
             context.destination.write(

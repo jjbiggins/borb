@@ -64,11 +64,12 @@ class ParagraphTransformer(Transformer):
                 background_color = HexColor("f5f7f9")
             out.append(
                 ChunkOfText(
-                    w + " ",
+                    f'{w} ',
                     font=self._get_font(is_bold, is_italic, is_monospaced),
                     background_color=background_color,
                 )
             )
+
         return out
 
     def _transform(self, context: TransformerState) -> None:
@@ -239,7 +240,7 @@ class ParagraphTransformer(Transformer):
                 i += 1
 
         # append any remaining chunks
-        if len(chunk_text) > 0:
+        if chunk_text != '':
             chunks_of_text.extend(
                 self._build_chunks(chunk_text, is_bold, is_italic, is_monospaced)
             )

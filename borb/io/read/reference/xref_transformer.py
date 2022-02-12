@@ -63,9 +63,7 @@ class XREFTransformer(Transformer):
 
         # update context
         assert context is not None
-        assert isinstance(object_to_transform, io.BufferedIOBase) or isinstance(
-            object_to_transform, io.RawIOBase
-        )
+        assert isinstance(object_to_transform, (io.BufferedIOBase, io.RawIOBase))
         context.root_object = Document()
         context.source = object_to_transform
         context.tokenizer = HighLevelTokenizer(context.source)
@@ -105,7 +103,7 @@ class XREFTransformer(Transformer):
             # build encryption handler
             v: int = int(xref["Trailer"]["Encrypt"].get("V", Decimal(0)))
             r: int = int(xref["Trailer"]["Encrypt"]["R"])
-            if r != 2 and r != 3:
+            if r not in [2, 3]:
                 assert (
                     False
                 ), "R is not 2 or 3. A number specifying which revision of the standard security handler shall be used to interpret this dictionary."
@@ -114,20 +112,16 @@ class XREFTransformer(Transformer):
                     "V is 0. An algorithm that is undocumented. "
                     "This value shall not be used."
                 )
-            if v == 1:
+            elif v in {1, 2}:
                 context.security_handler = StandardSecurityHandler(
                     xref["Trailer"]["Encrypt"], context.password
                 )
-            if v == 2:
-                context.security_handler = StandardSecurityHandler(
-                    xref["Trailer"]["Encrypt"], context.password
-                )
-            if v == 3:
+            elif v == 3:
                 assert False, (
                     "V is 3. (PDF 1.4) An unpublished algorithm that permits encryption key lengths ranging from 40 to 128 bits. "
                     "This value shall not appear in a conforming PDF file."
                 )
-            if v == 4:
+            elif v == 4:
                 assert False, "V is 4. Currently unsupported encryption dictionary."
 
             # raise error
@@ -203,11 +197,12 @@ class XREFTransformer(Transformer):
         context.source.seek(0)
         arr = [
             t
-            for t in [context.tokenizer.next_token() for _ in range(0, 10)]
+            for t in [context.tokenizer.next_token() for _ in range(10)]
             if t is not None
         ]
+
         assert len(arr) > 0
-        assert any([t.get_text().startswith("%PDF") for t in arr])
+        assert any(t.get_text().startswith("%PDF") for t in arr)
 
     def _read_xref(
         self, context: ReadTransformerState, initial_offset: Optional[int] = None

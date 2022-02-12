@@ -76,7 +76,7 @@ class TdTagTransformer(BaseTagTransformer):
             trailing_text = trailing_text.strip()
             if len(trailing_text) > 0:
                 for w in trailing_text.split(" "):
-                    chunks_of_text.add(ChunkOfText(w + " ", font=font_name))
+                    chunks_of_text.add(ChunkOfText(f'{w} ', font=font_name))
 
         # correct spacing
         self._correct_spacing_for_chunks_of_text(chunks_of_text)

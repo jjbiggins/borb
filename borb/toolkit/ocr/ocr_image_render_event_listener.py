@@ -134,7 +134,7 @@ class OCRImageRenderEventListener(EventListener):
             height_ratio: Decimal = event.get_height() / event.get_image().height
 
             number_of_boxes: int = len(data["level"])
-            for i in range(0, number_of_boxes):
+            for i in range(number_of_boxes):
 
                 x: Decimal = Decimal(data["left"][i])
                 # tesseract considers (LEFT, TOP) to be the origin
@@ -255,8 +255,8 @@ class OCRImageRenderEventListener(EventListener):
         percentage_of_text_pixels: Decimal = Decimal(0)
         max_x: int = 0
         max_y: int = 0
-        for i in range(0, text_image.width):
-            for j in range(0, text_image.height):
+        for i in range(text_image.width):
+            for j in range(text_image.height):
                 if text_image.getpixel((i, j)) == (0, 0, 0):
                     percentage_of_text_pixels += Decimal(1)
                     max_x = max(max_x, i)
@@ -280,8 +280,8 @@ class OCRImageRenderEventListener(EventListener):
             * cropped_image.height
         )
         color_histogram: typing.Dict[str, Decimal] = {}
-        for i in range(0, cropped_image.width):
-            for j in range(0, cropped_image.height):
+        for i in range(cropped_image.width):
+            for j in range(cropped_image.height):
                 color_tuple: typing.Tuple[int, int, int] = cropped_image.getpixel(
                     (i, j)
                 )

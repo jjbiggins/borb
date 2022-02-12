@@ -57,7 +57,7 @@ class CIDType0Font(Font):
                 and i + 1 < len(self["W"])
                 and isinstance(self["W"][i + 1], List)
             ):
-                for j in range(0, len(self["W"][i + 1])):
+                for j in range(len(self["W"][i + 1])):
                     cid = int(self["W"][i]) + j
                     cid_width = int(self["W"][i + 1][j])
                     self._width_cache[cid] = bDecimal(cid_width)
@@ -109,6 +109,9 @@ class CIDType0Font(Font):
         # fmt: off
         f_out: CIDType0Font = super(CIDType0Font, self).__deepcopy__(memodict)
         f_out[Name("Subtype")] = Name("CIDFontType0")
-        f_out._width_cache: typing.Dict[int, bDecimal] = {k: v for k, v in self._width_cache.items()}
+        f_out._width_cache: typing.Dict[int, bDecimal] = dict(
+            self._width_cache.items()
+        )
+
         return f_out
         # fmt: on

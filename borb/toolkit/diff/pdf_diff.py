@@ -67,12 +67,11 @@ class PDFDiff:
                 )
             return
 
-        if isinstance(a, Decimal):
-            if int(a) != int(b):
-                self._log_difference(
-                    "Value mismatch : %s %s <--> %s %s"
-                    % (path_to_a, str(a), path_to_b, str(b))
-                )
+        if isinstance(a, Decimal) and int(a) != int(b):
+            self._log_difference(
+                "Value mismatch : %s %s <--> %s %s"
+                % (path_to_a, str(a), path_to_b, str(b))
+            )
 
         # get references if they exist
         ref_a = PDFDiff._get_reference_or_none(a)
@@ -94,7 +93,7 @@ class PDFDiff:
                     % (path_to_a + ref_a, len(a), path_to_b + ref_b, len(b))
                 )
             else:
-                for i in range(0, len(dba)):
+                for i in range(len(dba)):
                     if dba[i] != dbb[i]:
                         self._errors.append(
                             "Stream content mismatch : %s %d <--> %s %d"
@@ -121,9 +120,10 @@ class PDFDiff:
                 self._compare(
                     a[k],
                     b[k],
-                    path_to_a + "/" + str(k) + ref_a,
-                    path_to_b + "/" + str(k) + ref_b,
+                    f'{path_to_a}/' + str(k) + ref_a,
+                    f'{path_to_b}/' + str(k) + ref_b,
                 )
+
             return
 
         # compare array
@@ -133,7 +133,7 @@ class PDFDiff:
                     "Array Length mismatch : %s %d <--> %s %d"
                     % (path_to_a + ref_a, len(a), path_to_b + ref_b, len(b))
                 )
-            for i in range(0, min(len(a), len(b))):
+            for i in range(min(len(a), len(b))):
                 self._compare(
                     a[i],
                     b[i],

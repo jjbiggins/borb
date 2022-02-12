@@ -59,10 +59,7 @@ class TrueTypeFont(Type1Font):
         assert cmap is not None
         cmap_reverse: typing.Dict[str, int] = {}
         for k, v in cmap.items():
-            if v in cmap_reverse:
-                cmap_reverse[v] = min(cmap_reverse[v], k)
-            else:
-                cmap_reverse[v] = k
+            cmap_reverse[v] = min(cmap_reverse[v], k) if v in cmap_reverse else k
         glyph_order: typing.List[str] = [
             x for x in ttf_font_file.glyphOrder if x in cmap_reverse
         ]
@@ -104,7 +101,7 @@ class TrueTypeFont(Type1Font):
         font[Name("Encoding")] = Dictionary()
         font["Encoding"][Name("BaseEncoding")] = Name("WinAnsiEncoding")
         font["Encoding"][Name("Differences")] = List()
-        for i in range(0, len(glyph_order)):
+        for i in range(len(glyph_order)):
             font["Encoding"]["Differences"].append(bDecimal(i))
             font["Encoding"]["Differences"].append(Name(glyph_order[i]))
 
@@ -214,7 +211,7 @@ class TrueTypeFont(Type1Font):
         pairs: typing.List[typing.Tuple[str, str]] = []
         for cid, g in enumerate(ttf_font_file.glyphOrder):
             g_unicode: str = toUnicode(g)
-            if len(g_unicode) == 0:
+            if not g_unicode:
                 continue
             g_hex: str = ""
             if len(g_unicode) == 1:
@@ -222,10 +219,10 @@ class TrueTypeFont(Type1Font):
             if len(g_unicode) == 2:
                 g_hex = hex(ord(g_unicode[0]))[2:] + hex(ord(g_unicode[1]))[2:]
             while len(g_hex) < 4:
-                g_hex = "0" + g_hex
+                g_hex = f'0{g_hex}'
             i_hex: str = hex(cid)[2:]
             while len(i_hex) < 4:
-                i_hex = "0" + i_hex
+                i_hex = f'0{i_hex}'
             pairs.append((i_hex, g_hex))
 
         # split in lots of 100
@@ -328,7 +325,13 @@ class TrueTypeFont(Type1Font):
         # fmt: off
         f_out: TrueTypeFont = super(TrueTypeFont, self).__deepcopy__(memodict)
         f_out[Name("Subtype")] = Name("TrueType")
-        f_out._character_identifier_to_unicode_lookup: typing.Dict[int, str] = {k: v for k, v in self._character_identifier_to_unicode_lookup.items()}
-        f_out._unicode_lookup_to_character_identifier: typing.Dict[str, int] = {k: v for k, v in self._unicode_lookup_to_character_identifier.items()}
+        f_out._character_identifier_to_unicode_lookup: typing.Dict[
+            int, str
+        ] = dict(self._character_identifier_to_unicode_lookup.items())
+
+        f_out._unicode_lookup_to_character_identifier: typing.Dict[
+            str, int
+        ] = dict(self._unicode_lookup_to_character_identifier.items())
+
         return f_out
         # fmt: on

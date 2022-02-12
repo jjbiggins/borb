@@ -78,9 +78,10 @@ class SimpleLineOfTextExtraction(EventListener):
         lines_of_text: typing.List[LineOfText] = []
         for chunks_of_text_partition in chunks_of_text_disjoint_set.sets():
             # sort
-            chunks_of_text: typing.List[ChunkOfTextRenderEvent] = [
-                x for x in chunks_of_text_partition
-            ]
+            chunks_of_text: typing.List[ChunkOfTextRenderEvent] = list(
+                chunks_of_text_partition
+            )
+
             sorted(chunks_of_text, key=cmp_to_key(LeftToRightComparator.cmp))
 
             # determine text

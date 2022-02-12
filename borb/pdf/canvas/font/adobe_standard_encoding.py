@@ -69,7 +69,4 @@ def adobe_standard_decode(byte_input: bytes) -> str:
     """
     This function decodes bytes using StandardEncoding
     """
-    s: str = ""
-    for b in byte_input:
-        s += chr(ADOBE_STANDARD_ENCODING_LOOKUP[b])
-    return s
+    return "".join(chr(ADOBE_STANDARD_ENCODING_LOOKUP[b]) for b in byte_input)

@@ -40,9 +40,7 @@ class RootDictionaryTransformer(Transformer):
         pages_in_order: typing.List[Page] = []
 
         # stack to explore Page(s) DFS
-        stack_to_handle: typing.List[AnyPDFType] = []
-        stack_to_handle.append(root_dictionary["Pages"])
-
+        stack_to_handle: typing.List[AnyPDFType] = [root_dictionary["Pages"]]
         # DFS
         while len(stack_to_handle) > 0:
             obj = stack_to_handle.pop(0)
@@ -77,14 +75,16 @@ class RootDictionaryTransformer(Transformer):
         """
         assert isinstance(object_to_transform, Dictionary)
 
-        # convert using Dictionary transformer
-        transformed_root_dictionary: Optional[Dictionary] = None
-        for t in self.get_root_transformer().get_children():
-            if isinstance(t, DictionaryTransformer):
-                transformed_root_dictionary = t.transform(
+        transformed_root_dictionary: Optional[Dictionary] = next(
+            (
+                t.transform(
                     object_to_transform, parent_object, context, event_listeners
                 )
-                break
+                for t in self.get_root_transformer().get_children()
+                if isinstance(t, DictionaryTransformer)
+            ),
+            None,
+        )
 
         assert transformed_root_dictionary is not None
         assert isinstance(transformed_root_dictionary, Dictionary)

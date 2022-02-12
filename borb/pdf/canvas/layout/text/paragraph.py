@@ -120,11 +120,8 @@ class Paragraph(LineOfText):
                 if c in tokens_to_preserve:
                     words.append(c)
                     words.append("")
-                else:
-                    # we have a token we split on, but don't preserve
-                    # such as whitespace, with self.respect_spaces_in_text set to False
-                    if words[-1] != "":
-                        words.append("")
+                elif words[-1] != "":
+                    words.append("")
             else:
                 # build the word that was already being built
                 words[-1] += c
@@ -140,7 +137,7 @@ class Paragraph(LineOfText):
                 continue
 
             # build line of text to check if it fits the bounding box
-            potential_text = lines_of_text[-1] if len(lines_of_text) > 0 else ""
+            potential_text = lines_of_text[-1] if lines_of_text else ""
             if len(potential_text) != 0 and not self._respect_spaces_in_text:
                 potential_text += " "
             potential_text += w
@@ -155,15 +152,13 @@ class Paragraph(LineOfText):
 
             # IF there is space left over, we add the word to the lines of text being built
             if remaining_space_in_box >= Decimal(0):
-                if len(lines_of_text) == 0:
+                if not lines_of_text:
                     lines_of_text.append(w)
                 else:
                     if len(lines_of_text[-1]) > 0 and not self._respect_spaces_in_text:
                         lines_of_text[-1] += " "
                     lines_of_text[-1] += w
 
-            # (ELSE) there is no more room in the box for this word,
-            # BUT perhaps we can hyphenate the word
             else:
                 # if no hyphenation class is provided, we can't hyphenate
                 if self._hyphenation is None:
@@ -182,7 +177,7 @@ class Paragraph(LineOfText):
                     lines_of_text.append(w)
                     continue
 
-                potential_text = lines_of_text[-1] if len(lines_of_text) > 0 else ""
+                potential_text = lines_of_text[-1] if lines_of_text else ""
                 if len(potential_text) != 0 and not self._respect_spaces_in_text:
                     potential_text += " "
 
@@ -190,7 +185,12 @@ class Paragraph(LineOfText):
                 hyphenation_split_index: int = 0
                 for i in range(1, len(hyphenated_word_parts)):
                     # fmt: off
-                    potential_text_after_hyphenation = potential_text + "".join([x for x in hyphenated_word_parts[0:i]]) + "-"
+                    potential_text_after_hyphenation = (
+                        potential_text
+                        + "".join(list(hyphenated_word_parts[:i]))
+                        + "-"
+                    )
+
                     potential_width = GlyphLine.from_str(potential_text_after_hyphenation, self._font, self._font_size).get_width_in_text_space()
                     remaining_space_in_box = round(bounding_box.width - potential_width, 2)
                     # fmt: on
@@ -208,16 +208,23 @@ class Paragraph(LineOfText):
                 # fmt: off
                 if len(lines_of_text[-1]) > 0 and not self._respect_spaces_in_text:
                     lines_of_text[-1] += " "
-                lines_of_text[-1] += "".join([x for x in hyphenated_word_parts[0:hyphenation_split_index]]) + "-"
-                lines_of_text.append("".join([x for x in hyphenated_word_parts[hyphenation_split_index:]]))
-                # fmt: on
+                lines_of_text[-1] += (
+                    "".join(list(hyphenated_word_parts[:hyphenation_split_index]))
+                    + "-"
+                )
+
+                lines_of_text.append(
+                    "".join(list(hyphenated_word_parts[hyphenation_split_index:]))
+                )
+
+                        # fmt: on
 
         # last-minute cleanup
-        while len(lines_of_text) > 0 and lines_of_text[-1] == "":
+        while lines_of_text and lines_of_text[-1] == "":
             lines_of_text.pop(len(lines_of_text) - 1)
 
         # return
-        return lines_of_text if len(lines_of_text) > 0 else [""]
+        return lines_of_text or [""]
 
     def _do_layout_without_padding(self, page: Page, bounding_box: Rectangle):
         # easy case
@@ -333,9 +340,7 @@ class Paragraph(LineOfText):
             remaining_space: Decimal = bounding_box.width - estimated_width
 
             # calculate the space that needs to be divided among the space-characters
-            number_of_spaces: Decimal = Decimal(
-                sum([1 for x in line_of_text if x == " "])
-            )
+            number_of_spaces: Decimal = Decimal(sum(x == " " for x in line_of_text))
             if number_of_spaces > 0:
                 space_per_space: Decimal = remaining_space / number_of_spaces
             else:

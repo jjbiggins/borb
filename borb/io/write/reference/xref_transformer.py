@@ -100,8 +100,9 @@ class XREFTransformer(Transformer):
 
         # update /Size
         trailer_out[Name("Size")] = Decimal(
-            sum([len(v) for k, v in context.indirect_objects_by_hash.items()]) + 1
+            sum(len(v) for k, v in context.indirect_objects_by_hash.items()) + 1
         )
+
 
         # write /Trailer
         context.destination.write(bytes("trailer\n", "latin1"))

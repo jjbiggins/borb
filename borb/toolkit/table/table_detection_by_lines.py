@@ -249,12 +249,12 @@ class TableDetectionByLines(EventListener):
 
         # find neighbouring cells and join wherever appropriate
         ds: disjointset = disjointset()
-        for i in range(0, number_of_rows):
-            for j in range(0, number_of_cols):
+        for i in range(number_of_rows):
+            for j in range(number_of_cols):
                 ds.add((i, j))
 
-        for c in range(0, len(xs) - 1):
-            for r in range(0, len(ys) - 1):
+        for c in range(len(xs) - 1):
+            for r in range(len(ys) - 1):
 
                 if c + 2 < len(xs):
                     logger.debug(
@@ -286,8 +286,8 @@ class TableDetectionByLines(EventListener):
         cells: typing.Dict[
             typing.Tuple[int, int], typing.List[typing.Tuple[int, int]]
         ] = {}
-        for i in range(0, number_of_rows):
-            for j in range(0, number_of_cols):
+        for i in range(number_of_rows):
+            for j in range(number_of_cols):
                 p: typing.Tuple[int, int] = ds.find((i, j))
                 if p not in cells:
                     cells[p] = []
@@ -298,10 +298,10 @@ class TableDetectionByLines(EventListener):
             number_of_rows=number_of_rows, number_of_columns=number_of_cols
         )
         for _, v in cells.items():
-            min_row: int = min([int_tuple[0] for int_tuple in v])
-            max_row: int = max([int_tuple[0] for int_tuple in v])
-            min_col: int = min([int_tuple[1] for int_tuple in v])
-            max_col: int = max([int_tuple[1] for int_tuple in v])
+            min_row: int = min(int_tuple[0] for int_tuple in v)
+            max_row: int = max(int_tuple[0] for int_tuple in v)
+            min_col: int = min(int_tuple[1] for int_tuple in v)
+            max_col: int = max(int_tuple[1] for int_tuple in v)
 
             # check whether all areas are rectangular
             for i in range(min_col, max_col):

@@ -37,8 +37,8 @@ def compare_visually_to_ground_truth(
     progress_int: int = 0
     prev_percentage_displayed: int = 0
     diff: float = 0
-    for i in range(0, W):
-        for j in range(0, H):
+    for i in range(W):
+        for j in range(H):
             p1 = im1.getpixel((i, j))
             p2 = im2.getpixel((i, j))
             progress_raw += 1.0 / (W * H)

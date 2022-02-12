@@ -115,24 +115,20 @@ class ChunkOfText(LayoutElement):
         if "Font" not in page["Resources"]:
             page["Resources"][Name("Font")] = Dictionary()
 
-        # insert font into resources
-        font_resource_name = [
+        if font_resource_name := [
             k for k, v in page["Resources"]["Font"].items() if v == font
-        ]
-        if len(font_resource_name) > 0:
+        ]:
             return font_resource_name[0]
-        else:
-            font_index = len(page["Resources"]["Font"]) + 1
-            page["Resources"]["Font"][Name("F%d" % font_index)] = font
-            return Name("F%d" % font_index)
+        font_index = len(page["Resources"]["Font"]) + 1
+        page["Resources"]["Font"][Name("F%d" % font_index)] = font
+        return Name("F%d" % font_index)
 
     def _write_text_bytes(self) -> str:
-        hex_mode: bool = False
-        # check glyphs
-        for c in self._text:
-            if ord(c) != self._font.unicode_to_character_identifier(c):
-                hex_mode = True
-                break
+        hex_mode: bool = any(
+            ord(c) != self._font.unicode_to_character_identifier(c)
+            for c in self._text
+        )
+
         # delegate
         if hex_mode or isinstance(self._font, TrueTypeFont):
             return self._write_text_bytes_in_hex()
@@ -161,7 +157,7 @@ class ChunkOfText(LayoutElement):
 
     def _pad_string_with_zeroes(self, s: str, n: int = 2) -> str:
         while len(s) < n:
-            s = "0" + s
+            s = f'0{s}'
         return s
 
     def _write_text_bytes_in_ascii(self) -> str:
@@ -181,9 +177,9 @@ class ChunkOfText(LayoutElement):
             elif c == "\f":
                 sOut += "\\f"
             elif c in ["(", ")", "\\"]:
-                sOut += "\\" + c
+                sOut += f'\\{c}'
             elif 0 <= ord(c) < 8:
-                sOut += "\\00" + oct(ord(c))[2:]
+                sOut += f'\\00{oct(ord(c))[2:]}'
             elif 8 <= ord(c) < 32:
                 sOut += "\\0" + oct(ord(c))[2:]
             else:

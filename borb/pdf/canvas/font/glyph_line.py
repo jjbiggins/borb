@@ -200,11 +200,11 @@ class GlyphLine:
         """
         This function returns True if any of the Glyph objects in the GlyphLine has a non-zero descent, False otherwise
         """
-        return any([(x in ["y", "p", "q", "f", "g", "j"]) for x in self.get_text()])
+        return any(x in ["y", "p", "q", "f", "g", "j"] for x in self.get_text())
 
     @staticmethod
     def _isspace(c: str) -> bool:
-        return ord(c) in [9, 10, 11, 12, 13, 32]
+        return ord(c) in {9, 10, 11, 12, 13, 32}
 
     def get_width_in_text_space(self) -> Decimal:
         """

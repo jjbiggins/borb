@@ -67,10 +67,7 @@ def symbol_decode(byte_input: bytes) -> str:
     """
     This function decodes bytes using SymbolEncoding
     """
-    s: str = ""
-    for b in byte_input:
-        s += chr(SYMBOL_ENCODING_LOOKUP[b])
-    return s
+    return "".join(chr(SYMBOL_ENCODING_LOOKUP[b]) for b in byte_input)
 
 
 # fmt: off
@@ -131,7 +128,4 @@ def zapfdingbats_decode(byte_input: bytes) -> str:
     """
     This function decodes bytes using ZapfDingbats
     """
-    s: str = ""
-    for b in byte_input:
-        s += chr(ZAPFDINGBATS_ENCODING_LOOKUP[b])
-    return s
+    return "".join(chr(ZAPFDINGBATS_ENCODING_LOOKUP[b]) for b in byte_input)

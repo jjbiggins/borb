@@ -33,7 +33,7 @@ class FunctionDictionaryTransformer(Transformer):
             isinstance(object, dict)
             and "FunctionType" in object
             and isinstance(object["FunctionType"], Decimal)
-            and int(object["FunctionType"]) in [0, 2, 3, 4]
+            and int(object["FunctionType"]) in {0, 2, 3, 4}
         )
 
     def transform(
@@ -51,7 +51,7 @@ class FunctionDictionaryTransformer(Transformer):
         assert isinstance(object_to_transform["FunctionType"], Decimal)
 
         function_type: int = int(object_to_transform["FunctionType"])
-        assert function_type in [0, 2, 3, 4], "FunctionType must be in [0, 2, 3, 4]"
+        assert function_type in {0, 2, 3, 4}, "FunctionType must be in [0, 2, 3, 4]"
 
         transformed_object: Function = Function()
 

@@ -64,7 +64,13 @@ class Type3Font(Type1Font):
         # fmt: off
         f_out: Font = super(Type3Font, self).__deepcopy__(memodict)
         f_out[Name("Subtype")] = Name("Type3")
-        f_out._character_identifier_to_unicode_lookup: typing.Dict[int, str] = {k: v for k, v in self._character_identifier_to_unicode_lookup.items()}
-        f_out._unicode_lookup_to_character_identifier: typing.Dict[str, int] = {k: v for k, v in self._unicode_lookup_to_character_identifier.items()}
+        f_out._character_identifier_to_unicode_lookup: typing.Dict[
+            int, str
+        ] = dict(self._character_identifier_to_unicode_lookup.items())
+
+        f_out._unicode_lookup_to_character_identifier: typing.Dict[
+            str, int
+        ] = dict(self._unicode_lookup_to_character_identifier.items())
+
         return f_out
         # fmt: on

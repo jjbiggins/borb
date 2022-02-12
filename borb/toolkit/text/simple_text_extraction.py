@@ -70,7 +70,7 @@ class SimpleTextExtraction(EventListener):
         tris = [x for x in tris if len(x._text.replace(" ", "")) != 0]
 
         # skip empty
-        if len(tris) == 0:
+        if not tris:
             return
 
         # sort according to comparator
@@ -83,10 +83,8 @@ class SimpleTextExtraction(EventListener):
         for t in tris:
 
             # add newline if needed
-            if abs(t.get_baseline().y - last_baseline_bottom) > 10 and len(text) > 0:
-                if text.endswith(" "):
-                    text = text[0:-1]
-                text += "\n"
+            if abs(t.get_baseline().y - last_baseline_bottom) > 10 and text != '':
+                text = text.removesuffix(" ") + "\n"
                 text += t._text
                 last_baseline_right = t.get_baseline().x + t.get_baseline().width
                 last_baseline_bottom = t.get_baseline().y

@@ -67,10 +67,10 @@ class GradientColoredDisjointShape(DisjointShape):
 
         # write content
         content = "q %d w " % (self._line_width,)
-        min_x: Decimal = min([min(l[0][0], l[1][0]) for l in self._lines])
-        min_y: Decimal = min([min(l[0][1], l[1][1]) for l in self._lines])
-        max_x: Decimal = max([min(l[0][0], l[1][0]) for l in self._lines])
-        max_y: Decimal = max([max(l[0][1], l[1][1]) for l in self._lines])
+        min_x: Decimal = min(min(l[0][0], l[1][0]) for l in self._lines)
+        min_y: Decimal = min(min(l[0][1], l[1][1]) for l in self._lines)
+        max_x: Decimal = max(min(l[0][0], l[1][0]) for l in self._lines)
+        max_y: Decimal = max(max(l[0][1], l[1][1]) for l in self._lines)
 
         # we need to calculate the norm (the max distance between a line and the origin of the gradient)
         n: Decimal = Decimal(1)
@@ -88,11 +88,10 @@ class GradientColoredDisjointShape(DisjointShape):
             mid_x = (max_x - min_x) / 2 + min_x
             mid_y = (max_y - min_y) / 2 + min_y
             n = max(
-                [
-                    math.sqrt((l[0][0] - mid_x) ** 2 + (l[0][1] - mid_y) ** 2)
-                    for l in self._lines
-                ]
+                math.sqrt((l[0][0] - mid_x) ** 2 + (l[0][1] - mid_y) ** 2)
+                for l in self._lines
             )
+
 
         # VERTICAL
         if self._gradient_type == GradientColoredDisjointShape.GradientType.VERTICAL:

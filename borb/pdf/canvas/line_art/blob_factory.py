@@ -34,38 +34,31 @@ class BlobFactory:
     def _check_if_object_is_polygon(
         points: typing.List[typing.Tuple[Decimal, Decimal]]
     ):
-        if points[0] == points[len(points) - 1]:
-            return True
-        else:
-            return False
+        return points[0] == points[len(points) - 1]
 
     @staticmethod
     def _q_point(P1, P2):
         summand1 = BlobFactory._multiply_point(Decimal(0.75), P1)
         summand2 = BlobFactory._multiply_point(Decimal(0.25), P2)
-        Q = BlobFactory._sum_points(summand1, summand2)
-        return Q
+        return BlobFactory._sum_points(summand1, summand2)
 
     @staticmethod
     def _r_point(P1, P2):
         summand1 = BlobFactory._multiply_point(Decimal(0.25), P1)
         summand2 = BlobFactory._multiply_point(Decimal(0.75), P2)
-        R = BlobFactory._sum_points(summand1, summand2)
-        return R
+        return BlobFactory._sum_points(summand1, summand2)
 
     @staticmethod
     def _smooth_polygon(
         points: typing.List[typing.Tuple[Decimal, Decimal]], number_of_refinements: int
     ):
-        for _ in range(0, number_of_refinements):
+        for _ in range(number_of_refinements):
             points_next_iter = []
             for num, pt in enumerate(points):
                 P1, P2 = (pt, points[(num + 1) % len(points)])
                 Q = BlobFactory._q_point(P1, P2)
                 R = BlobFactory._r_point(P1, P2)
-                points_next_iter.append(Q)
-                points_next_iter.append(R)
-
+                points_next_iter.extend((Q, R))
             # get everything ready for next iteration
             points = points_next_iter
 
@@ -81,11 +74,12 @@ class BlobFactory:
         # generate regular polygon
         points = [
             (Decimal(cos(radians(x))), Decimal(sin(radians(x))))
-            for x in range(0, 360, int(360 / number_of_edges))
+            for x in range(0, 360, 360 // number_of_edges)
         ]
 
+
         # randomly distort polygon
-        random_radius = [Decimal(random.randint(1, 10)) for _ in range(0, len(points))]
+        random_radius = [Decimal(random.randint(1, 10)) for _ in range(len(points))]
         points = [(p[0] * r, p[1] * r) for p, r in zip(points, random_radius)]
 
         # smoothing

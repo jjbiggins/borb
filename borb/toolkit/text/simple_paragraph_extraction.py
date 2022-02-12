@@ -73,7 +73,7 @@ class SimpleParagraphExtraction(SimpleLineOfTextExtraction):
         # combine partitions into Paragraph objects
         paragraphs: typing.List[Paragraph] = []
         for line_of_text_partition in line_of_text_disjoint_set.sets():
-            lines_of_text = [x for x in line_of_text_partition]
+            lines_of_text = list(line_of_text_partition)
 
             # determine text
             txt = "".join([x._text + "\n" for x in lines_of_text])[:-1]
@@ -87,20 +87,24 @@ class SimpleParagraphExtraction(SimpleLineOfTextExtraction):
             ).set_bounding_box(
                 Rectangle(
                     min([l.bounding_box.x for l in lines_of_text]),
-                    min([l.bounding_box.y for l in lines_of_text]),
-                    max(
-                        [l.bounding_box.x + l.bounding_box.width for l in lines_of_text]
-                    )
-                    - min([l.bounding_box.x for l in lines_of_text]),
-                    max(
-                        [
+                    min(l.bounding_box.y for l in lines_of_text),
+                    (
+                        max(
+                            l.bounding_box.x + l.bounding_box.width
+                            for l in lines_of_text
+                        )
+                        - min(l.bounding_box.x for l in lines_of_text)
+                    ),
+                    (
+                        max(
                             l.bounding_box.y + l.bounding_box.height
                             for l in lines_of_text
-                        ]
-                    )
-                    - min([l.bounding_box.y for l in lines_of_text]),
+                        )
+                        - min([l.bounding_box.y for l in lines_of_text])
+                    ),
                 )
             )
+
             assert isinstance(p, Paragraph)
             paragraphs.append(p)
 

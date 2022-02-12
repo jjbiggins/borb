@@ -36,8 +36,8 @@ class FreeSpaceFinder(EventListener):
             self._page_height = page_height
             self._resolution = resolution
             self._availability: typing.List[typing.List[bool]] = [
-                [True for _ in range(0, ceil(self._page_width / self._resolution))]
-                for _ in range(0, ceil(self._page_height / self._resolution))
+                [True for _ in range(ceil(self._page_width / self._resolution))]
+                for _ in range(ceil(self._page_height / self._resolution))
             ]
 
         def _mark_as_unavailable(self, rectangle: Rectangle) -> "FreeSpaceFinder.Grid":
@@ -63,11 +63,11 @@ class FreeSpaceFinder(EventListener):
             w = int(int(desired_rectangle.width) / self._resolution)
             h = int(int(desired_rectangle.height) / self._resolution)
             possible_points: typing.List[typing.Tuple[Decimal, Decimal]] = []
-            for i in range(0, len(self._availability) - w):
-                for j in range(0, len(self._availability[i]) - h):
+            for i in range(len(self._availability) - w):
+                for j in range(len(self._availability[i]) - h):
                     is_free = True
-                    for k in range(0, w):
-                        for l in range(0, h):
+                    for k in range(w):
+                        for l in range(h):
                             if not self._availability[i + k][j + l]:
                                 is_free = False
                                 break

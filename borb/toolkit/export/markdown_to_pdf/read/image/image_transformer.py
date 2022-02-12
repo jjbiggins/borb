@@ -55,7 +55,7 @@ class ImageTransformer(Transformer):
                 "\n", context.tell() + 1
             )
         ]
-        assert len(markdown_str) > 0
+        assert markdown_str != ''
 
         # match against regex
         match: typing.Optional[re.Match] = re.match(
@@ -65,7 +65,7 @@ class ImageTransformer(Transformer):
 
         # extract (named group) url
         url: str = match["url"]
-        assert len(url) > 0
+        assert url != ''
 
         # open raw image
         image = PILImage.open(

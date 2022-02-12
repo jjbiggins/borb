@@ -93,18 +93,18 @@ class Transformer:
         """
         This method writes an object (of type AnyPDFType) to a byte stream (specified in the WriteTransformerState)
         """
-        # transform object
-        return_value = None
-        for h in self._handlers:
-            if h.can_be_transformed(object_to_transform):
-                return_value = h.transform(
+        # return
+        return next(
+            (
+                h.transform(
                     object_to_transform,
                     context=context,
                 )
-                break
-
-        # return
-        return return_value
+                for h in self._handlers
+                if h.can_be_transformed(object_to_transform)
+            ),
+            None,
+        )
 
     def _start_object(
         self,
@@ -191,13 +191,12 @@ class Transformer:
                     return ref
 
         # generate new object number
-        existing_obj_numbers = set(
-            [
-                item.get_reference().object_number  # type: ignore [union-attr]
-                for sublist in [v for k, v in context.indirect_objects_by_hash.items()]
-                for item in sublist
-            ]
-        )
+        existing_obj_numbers = {
+            item.get_reference().object_number
+            for sublist in [v for k, v in context.indirect_objects_by_hash.items()]
+            for item in sublist
+        }
+
         obj_number = len(existing_obj_numbers) + 1
         while obj_number in existing_obj_numbers:  # type: ignore [union-attr]
             obj_number += 1

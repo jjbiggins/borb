@@ -149,6 +149,4 @@ class Barcode(Image):
             fill_color=self._stroke_color.to_rgb().to_hex_string(),
             back_color=self._fill_color.to_rgb().to_hex_string(),
         )
-        jpg_image = png_image.convert("RGB")
-
-        return jpg_image
+        return png_image.convert("RGB")

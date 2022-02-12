@@ -53,10 +53,10 @@ class Hyphenation:
             # load patterns
             for p in data["patterns"]:
                 assert isinstance(p, str)
-                for i in range(0, len(p)):
+                for i in range(len(p)):
                     if not p[i].isdigit():
                         continue
-                    prefix: str = "".join([c for c in p[0:i] if not c.isdigit()])
+                    prefix: str = "".join([c for c in p[:i] if not c.isdigit()])
                     suffix: str = "".join([c for c in p[i:] if not c.isdigit()])
                     # keep track of prefix length
                     self._max_prefix_length = max(self._max_prefix_length, len(prefix))
@@ -66,7 +66,7 @@ class Hyphenation:
                     self._min_suffix_length = min(self._min_suffix_length, len(suffix))
                     # insert into trie
                     digit: int = int(p[i])
-                    self._patterns[prefix + "0" + suffix] = digit
+                    self._patterns[f'{prefix}0{suffix}'] = digit
 
             # load exceptions
             if "exceptions" in data:
@@ -90,8 +90,8 @@ class Hyphenation:
                 return "".join([c if c.isalpha() else hyphenation_character for c in e])
 
         # normal run of the algorithm
-        s2: str = "." + s + "."
-        hyphenation_info: typing.List[int] = [0 for _ in range(0, len(s2))]
+        s2: str = f'.{s}.'
+        hyphenation_info: typing.List[int] = [0 for _ in range(len(s2))]
         for i in range(2, len(s2)):
             for j in range(self._min_prefix_length, self._max_prefix_length + 1):
                 if i - j < 0:
@@ -103,7 +103,7 @@ class Hyphenation:
                     if i + k >= len(s2):
                         continue
                     suffix: str = s2[i : (i + k)]
-                    value: typing.Optional[int] = self._patterns[prefix + "0" + suffix]
+                    value: typing.Optional[int] = self._patterns[f'{prefix}0{suffix}']
                     if value:
                         hyphenation_info[i] = max(hyphenation_info[i], value)
         s3: str = ""
@@ -117,9 +117,6 @@ class Hyphenation:
                 s3 += s2[i]
                 continue
             # do not allow split on last 2, or first 2 characters
-            if hyphenation_info[i] % 2 == 1:
-                s3 += hyphenation_character + s2[i]
-            else:
-                s3 += s2[i]
+            s3 += hyphenation_character + s2[i] if hyphenation_info[i] % 2 == 1 else s2[i]
         # return
         return s3

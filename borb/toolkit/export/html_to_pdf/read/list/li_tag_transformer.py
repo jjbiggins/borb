@@ -73,7 +73,7 @@ class LiTagTransformer(Transformer):
             trailing_text = trailing_text.strip()
             if len(trailing_text) > 0:
                 for w in trailing_text.split(" "):
-                    chunks_of_text.add(ChunkOfText(w + " ", font=font_name))
+                    chunks_of_text.add(ChunkOfText(f'{w} ', font=font_name))
 
         # this element should not have a tail
         assert html_element.tail is not None
